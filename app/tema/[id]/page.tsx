@@ -81,7 +81,7 @@ export default async function HadithBookPage({
               <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle,rgba(201,168,76,0.08),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
               
               <div className="flex justify-between items-start mb-8 relative z-10">
-                <span className="text-[#C9A84C] font- text-2xl">#{hadith.number}</span>
+                <span className="text-[#C9A84C] font-jakarta text-2xl">#{hadith.number}</span>
                 <CopyButton textToCopy={`${hadith.arab}\n\n"${hadith.id}"\n\n— ${bookData.name} No. ${hadith.number}`} />
               </div>
               

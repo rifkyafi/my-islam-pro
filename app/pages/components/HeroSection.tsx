@@ -21,9 +21,9 @@ export function HeroSection() {
       </div>
 
       <div className="relative z-10 text-center max-w-[700px] px-8 pt-32 pb-16 flex flex-col items-center">
-        <p className="font-neirizi text-3xl text-[#C9A84C] mb-8 animate-[fadeUp_1s_ease_0.1s_forwards,pulse_4s_ease-in-out_infinite] opacity-0" aria-label="Bismillahirrahmanirrahim">
+        {/* <p className="font-neirizi text-3xl text-[#C9A84C] mb-8 animate-[fadeUp_1s_ease_0.1s_forwards,pulse_4s_ease-in-out_infinite] opacity-0" aria-label="Bismillahirrahmanirrahim">
           بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-        </p>
+        </p> */}
 
         <p className="text-[0.7rem] font-semibold tracking-[5px] uppercase text-[#C9A84C] mb-5 animate-[fadeUp_0.9s_ease_0.25s_forwards] opacity-0">Koleksi Hadis Pilihan</p>
 
@@ -34,18 +34,24 @@ export function HeroSection() {
         </h1>
 
         <div className="w-[72px] h-[1px] bg-[linear-gradient(90deg,transparent,#C9A84C,transparent)] mb-7 animate-[fadeUp_0.9s_ease_0.5s_forwards] opacity-0" aria-hidden="true" />
-
+        
+        <p className="font-neirizi text-xl text-[#C9A84C] mb-4 " aria-label="Dalil tentang menuntut ilmu">
+          مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ
+        </p>
+        <p className="text-xs font-light text-[#C4B89A] max-w-[500px] leading-[1.85] animate-[fadeUp_0.9s_ease_0.6s_forwards] opacity-0">
+          (Barangsiapa menempuh jalan untuk mencari ilmu, maka Allah memudahkan baginya jalan menuju surga) - HR. Muslim
+        </p>
         <p className="text-base font-light text-[#C4B89A] max-w-[500px] leading-[1.85] mb-12 animate-[fadeUp_0.9s_ease_0.6s_forwards] opacity-0">
           Temukan petunjuk Rasulullah ﷺ yang relevan dengan kehidupan sehari-hari, tersusun dalam tema-tema yang mudah dipahami dan diamalkan.
         </p>
 
         <div className="flex gap-4 justify-center flex-wrap animate-[fadeUp_0.9s_ease_0.75s_forwards] opacity-0 mb-16">
           <a href="#tema" className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-[#C9A84C] text-[#0C1A1F] text-[0.85rem] font-semibold tracking-[0.5px] no-underline transition-all hover:bg-[#E2C07A] hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(201,168,76,0.28)]">
-            Jelajahi Tema
+            Jelajahi Hadits
             <ArrowRight size={16} />
           </a>
-          <Link href="/search" className="inline-flex items-center gap-2.5 px-8 py-3.5 border border-[#C9A84C]/42 text-[#C4B89A] text-[0.85rem] font-normal tracking-[0.5px] no-underline transition-all hover:border-[#C9A84C] hover:text-[#C9A84C] hover:-translate-y-0.5">
-            Cari Hadis
+          <Link href="/dalil" className="inline-flex items-center gap-2.5 px-8 py-3.5 border border-[#C9A84C]/42 text-[#C4B89A] text-[0.85rem] font-normal tracking-[0.5px] no-underline transition-all hover:border-[#C9A84C] hover:text-[#C9A84C] hover:-translate-y-0.5">
+            Cari Dalil
           </Link>
         </div>
 

@@ -1,4 +1,4 @@
-import { Cormorant_Garamond, Amiri, Plus_Jakarta_Sans } from 'next/font/google'
+import { Cormorant_Garamond, Scheherazade_New, Plus_Jakarta_Sans } from 'next/font/google'
 
 export const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -8,10 +8,10 @@ export const cormorant = Cormorant_Garamond({
   display: 'swap',
 })
 
-export const neirizi = Amiri({
+export const neirizi = Scheherazade_New({
   subsets: ['arabic'],
-  weight: ['400', '700'],
-  variable: '--font-amiri',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-neirizi',
   display: 'swap',
 })
 
