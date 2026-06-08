@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { jakarta, amiri, cormorant } from './fonts'
+import { jakarta, neirizi, cormorant } from './fonts'
 import { NavBar } from './components/NavBar'
 import { HeroSection } from './components/HeroSection'
 import { StatsStrip } from './components/StatsStrip'
@@ -61,7 +61,7 @@ export default async function HomePage() {
   const featuredHadith = await getFeaturedHadith();
 
   return (
-    <div className={`${jakarta.variable} ${amiri.variable} ${cormorant.variable} font-sans selection:bg-[#C9A84C]/30 selection:text-[#F2EBD9]`}>
+    <div className={`${jakarta.variable} ${neirizi.variable} ${cormorant.variable} font-sans selection:bg-[#C9A84C]/30 selection:text-[#F2EBD9]`}>
       <style>{`
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(24px); }

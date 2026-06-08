@@ -21,7 +21,7 @@ export function HeroSection() {
       </div>
 
       <div className="relative z-10 text-center max-w-[700px] px-8 pt-32 pb-16 flex flex-col items-center">
-        <p className="font-amiri text-3xl text-[#C9A84C] mb-8 animate-[fadeUp_1s_ease_0.1s_forwards,pulse_4s_ease-in-out_infinite] opacity-0" aria-label="Bismillahirrahmanirrahim">
+        <p className="font-neirizi text-3xl text-[#C9A84C] mb-8 animate-[fadeUp_1s_ease_0.1s_forwards,pulse_4s_ease-in-out_infinite] opacity-0" aria-label="Bismillahirrahmanirrahim">
           بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
         </p>
 

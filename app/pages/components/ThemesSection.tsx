@@ -1,6 +1,12 @@
 // Removed unused import
 import { ThemeCard } from './ThemeCard'
 
+interface HadithBook {
+  id: string;
+  name: string;
+  available: number;
+}
+
 export async function ThemesSection() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   let books = [];
@@ -33,7 +39,7 @@ export async function ThemesSection() {
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 p-[1px] bg-[#C9A84C]/18 border border-[#C9A84C]/18">
-          {books.map((book: any) => (
+          {books.map((book: HadithBook) => (
             <ThemeCard 
               key={book.id} 
               theme={{

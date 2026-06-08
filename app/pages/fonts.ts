@@ -8,7 +8,7 @@ export const cormorant = Cormorant_Garamond({
   display: 'swap',
 })
 
-export const amiri = Amiri({
+export const neirizi = Amiri({
   subsets: ['arabic'],
   weight: ['400', '700'],
   variable: '--font-amiri',
@@ -21,3 +21,4 @@ export const jakarta = Plus_Jakarta_Sans({
   variable: '--font-jakarta',
   display: 'swap',
 })
+
