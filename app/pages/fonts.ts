@@ -1,4 +1,4 @@
-import { Cormorant_Garamond, Scheherazade_New, Plus_Jakarta_Sans } from 'next/font/google'
+import { Cormorant_Garamond, Scheherazade_New, Plus_Jakarta_Sans, Montserrat } from 'next/font/google'
 
 export const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -19,6 +19,12 @@ export const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600'],
   variable: '--font-jakarta',
+  display: 'swap',
+})
+
+export const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
   display: 'swap',
 })
 

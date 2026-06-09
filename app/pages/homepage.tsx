@@ -22,14 +22,35 @@ export const metadata: Metadata = {
 
 async function getFeaturedHadith(): Promise<FeaturedHadithData | null> {
   try {
-    // Fetching from our internal API
-    // Note: In a real server environment, we might fetch directly from the source
-    // but here we use the internal route for demonstration as requested.
-    // We assume the API can return a specific hadith or a random one.
-    // For now, let's fetch a specific well-known hadith (e.g. Bukhari #1)
+    // Menghitung hari saat ini sejak epoch agar konsisten berubah tiap 24 jam
+    const today = new Date();
+    // Menggunakan offset waktu Asia/Jakarta (WIB) atau biarkan local/UTC
+    // Menggunakan Math.floor untuk pembulatan hari
+    const daysSinceEpoch = Math.floor(today.getTime() / 86400000);
+    
+    // Daftar semua kitab hadits dan batas jumlah maksimalnya sesuai API
+    const books = [
+      { id: "abu-daud", max: 4419 },
+      { id: "ahmad", max: 4305 },
+      { id: "bukhari", max: 6638 },
+      { id: "darimi", max: 2949 },
+      { id: "ibnu-majah", max: 4285 },
+      { id: "malik", max: 1587 },
+      { id: "muslim", max: 4930 },
+      { id: "nasai", max: 5364 },
+      { id: "tirmidzi", max: 3625 }
+    ];
+
+    // Pilih kitab secara pseudorandom berdasarkan hari
+    const bookIndex = (daysSinceEpoch * 73) % books.length;
+    const selectedBook = books[bookIndex];
+
+    // Pilih nomor hadits secara pseudorandom dalam batas kitab yang terpilih
+    const hadithNumber = (daysSinceEpoch * 137) % selectedBook.max + 1;
+
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/hadits?id=bukhari&range=1-1`, {
-      next: { revalidate: 3600 } // Cache for 1 hour
+    const response = await fetch(`${baseUrl}/api/hadits?id=${selectedBook.id}&range=${hadithNumber}-${hadithNumber}`, {
+      next: { revalidate: 86400 } // Cache selama 24 jam
     });
     
     if (!response.ok) return null;
