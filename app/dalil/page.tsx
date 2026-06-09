@@ -202,6 +202,32 @@ const dalilKarakter = [
   },
 ];
 
+const rukunData = [
+  {
+    kategori: "5 Rukun Islam",
+    jumlah: 5,
+    items: [
+      { no: 1, karakter: "Syahadat", book: 'bukhari', range: '8', quranRefs: [{ surah: 3, ayat: 18 }] },
+      { no: 2, karakter: "Shalat", book: 'bukhari', range: '8', quranRefs: [{ surah: 2, ayat: 43 }] },
+      { no: 3, karakter: "Zakat", book: 'bukhari', range: '8', quranRefs: [{ surah: 2, ayat: 110 }] },
+      { no: 4, karakter: "Puasa", book: 'bukhari', range: '8', quranRefs: [{ surah: 2, ayat: 183 }] },
+      { no: 5, karakter: "Haji", book: 'bukhari', range: '8', quranRefs: [{ surah: 3, ayat: 97 }] },
+    ],
+  },
+  {
+    kategori: "6 Rukun Iman",
+    jumlah: 6,
+    items: [
+      { no: 1, karakter: "Iman kepada Allah", book: 'muslim', range: '8', quranRefs: [{ surah: 2, ayat: 285 }] },
+      { no: 2, karakter: "Iman kepada Malaikat", book: 'muslim', range: '8', quranRefs: [{ surah: 2, ayat: 285 }] },
+      { no: 3, karakter: "Iman kepada Kitab", book: 'muslim', range: '8', quranRefs: [{ surah: 2, ayat: 285 }] },
+      { no: 4, karakter: "Iman kepada Rasul", book: 'muslim', range: '8', quranRefs: [{ surah: 4, ayat: 136 }] },
+      { no: 5, karakter: "Iman kepada Hari Kiamat", book: 'muslim', range: '8', quranRefs: [{ surah: 4, ayat: 136 }] },
+      { no: 6, karakter: "Iman kepada Qada & Qadar", book: 'muslim', range: '8', quranRefs: [{ surah: 54, ayat: 49 }] },
+    ],
+  }
+];
+
 async function fetchHadiths(baseUrl: string, book: string, range: string) {
   try {
     const res = await fetch(`${baseUrl}/api/hadits?id=${book}&range=${range}`, {
@@ -305,6 +331,38 @@ export default async function DalilPage() {
     };
   }));
 
+  const rukunDalilsData = await Promise.all(rukunData.map(async (theme) => {
+    // Fetch dalils per sub-item
+    const itemsWithDalils = await Promise.all(theme.items.map(async (item) => {
+      const hadiths = await fetchHadiths(baseUrl, item.book, item.range);
+      const bookName = hadiths.length > 0 ? `HR. ${item.book.charAt(0).toUpperCase()}${item.book.slice(1).replace('-', ' ')}` : '';
+
+      const hadithDalils: DalilEntry[] = hadiths.slice(0, 2).map((h: any) => ({
+        arabic: h.arab ?? '',
+        translation: h.id ?? '',
+        sourceInfo: `${bookName} No. ${h.number}`,
+        type: 'hadith' as const,
+      }));
+
+      // Fetch ayat Quran secara paralel
+      const quranDalils = (await Promise.all(
+        (item.quranRefs ?? []).map(({ surah, ayat }) => fetchQuranAyat(baseUrl, surah, ayat))
+      )).filter((d): d is DalilEntry => d !== null);
+
+      const allDalils: DalilEntry[] = [...hadithDalils, ...quranDalils];
+      
+      return {
+        ...item,
+        fetchedDalils: allDalils
+      };
+    }));
+
+    return {
+      ...theme,
+      items: itemsWithDalils
+    };
+  }));
+
   return (
     <div className="min-h-screen bg-[#0F2027] text-[#F2EBD9] py-24">
       <div className="max-w-[1280px] mx-auto px-5 md:px-10">
@@ -326,7 +384,7 @@ export default async function DalilPage() {
           </p>
         </div>
 
-        <DalilClientView dalils={dalils} dalilKarakterData={dalilKarakterData} />
+        <DalilClientView dalils={dalils} dalilKarakterData={dalilKarakterData} rukunData={rukunDalilsData} />
       </div>
     </div>
   )

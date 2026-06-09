@@ -12,29 +12,33 @@ function DalilItem({ arabic, translation, sourceInfo, type, textToCopy }: {
   textToCopy: string
 }) {
   return (
-    <div className="py-4 border-b border-[#C9A84C]/10 last:border-0">
-      <div className="flex items-center gap-2 mb-2">
-        <span className={`text-[0.65rem] font-medium px-2 py-0.5 rounded-full tracking-wider uppercase ${
-          type === 'quran'
-            ? 'bg-[#2A6B5A]/20 text-[#3D9B7F] border border-[#3D9B7F]/30'
-            : 'bg-[#C9A84C]/10 text-[#C9A84C] border border-[#C9A84C]/30'
-        }`}>
-          {type === 'quran' ? 'Al-Qur\'an' : 'Hadits'}
-        </span>
-        <span className="text-[0.65rem] text-[#7A8F96]">{sourceInfo}</span>
+    <div className="py-6 border-b border-[#C9A84C]/10 last:border-0">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={`text-[0.65rem] font-medium px-2 py-0.5 rounded-full tracking-wider uppercase ${
+            type === 'quran'
+              ? 'bg-[#2A6B5A]/20 text-[#3D9B7F] border border-[#3D9B7F]/30'
+              : 'bg-[#C9A84C]/10 text-[#C9A84C] border border-[#C9A84C]/30'
+          }`}>
+            {type === 'quran' ? 'Al-Qur\'an' : 'Hadits'}
+          </span>
+          <span className="text-[0.7rem] text-[#7A8F96] tracking-wide">{sourceInfo}</span>
+        </div>
+        <div className="shrink-0">
+          <CopyButton textToCopy={textToCopy} />
+        </div>
       </div>
+      
       {arabic && (
-        <p className="font-neirizi text-lg text-[#E2C07A] text-right leading-[2] mb-2">{arabic}</p>
+        <p className="font-neirizi text-2xl md:text-3xl text-[#E2C07A] text-right leading-[1.8] mb-6 mt-2">{arabic}</p>
       )}
+      
       <blockquote
-        className="text-[0.82rem] text-[#F2EBD9]/85 italic leading-relaxed border-l-2 border-[#C9A84C]/40 pl-3 mb-2"
+        className="text-[0.95rem] md:text-base text-[#F2EBD9]/90 italic text-justify leading-relaxed border-l-2 border-[#C9A84C]/40 pl-4 mb-2"
         style={{ fontFamily: 'var(--font-montserrat), Montserrat, sans-serif' }}
       >
         "{translation}"
       </blockquote>
-      <div className="flex justify-end">
-        <CopyButton textToCopy={textToCopy} />
-      </div>
     </div>
   )
 }
@@ -46,7 +50,7 @@ export function CardList({ theme }: { theme: LifeTheme }) {
   const restDalils = theme.dalils?.slice(1) ?? []
 
   return (
-    <div className="group relative bg-[#182E38] overflow-hidden transition-all hover:bg-[#1E3A47] before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-[2px] before:bg-[linear-gradient(90deg,#2A6B5A,#C9A84C,#2A6B5A)] before:scale-x-0 before:origin-left before:transition-transform before:duration-[400ms] hover:before:scale-x-100">
+    <div className="group relative bg-[#182E38] transition-all hover:bg-[#1E3A47] before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-[2px] before:bg-[linear-gradient(90deg,#2A6B5A,#C9A84C,#2A6B5A)] before:scale-x-0 before:origin-left before:transition-transform before:duration-[400ms] hover:before:scale-x-100">
       {/* Header tema */}
       <div className="p-[1.875rem] md:px-[1.625rem] md:py-[1.875rem]">
 

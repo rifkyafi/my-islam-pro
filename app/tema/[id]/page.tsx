@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Montserrat } from 'next/font/google';
 import { CopyButton } from '../../pages/components/CopyButton';
 
-const montserrat = Montserrat({ subsets: ['latin'], weight: ['300', '400', '500'] });
+const montserrat = Montserrat({ subsets: ['latin'], weight: ['300', '400', '500'], style: ['normal', 'italic'] });
 
 interface HadithItem {
   number: number;
@@ -77,24 +77,25 @@ export default async function HadithBookPage({
 
         <div className="flex flex-col gap-8 mb-16">
           {bookData.hadiths?.map((hadith: HadithItem) => (
-            <div key={hadith.number} className="bg-[#132830] border border-[#C9A84C]/18 p-8 md:p-10 relative group hover:border-[#C9A84C]/40 transition-colors">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle,rgba(201,168,76,0.08),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-              
+            <div
+              key={hadith.number}
+              id={`hadith-${hadith.number}`}
+              className="group relative bg-[#182E38] p-8 md:p-10 flex flex-col transition-all hover:bg-[#1E3A47] scroll-mt-28 target:ring-2 target:ring-[#C9A84C]/60 target:bg-[#1E3A47] before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-[2px] before:bg-[linear-gradient(90deg,#2A6B5A,#C9A84C,#2A6B5A)] before:scale-x-0 before:origin-left before:transition-transform before:duration-[400ms] hover:before:scale-x-100 after:content-[''] after:absolute after:-bottom-[60px] after:-right-[60px] after:w-[140px] after:h-[140px] after:bg-[radial-gradient(circle,rgba(201,168,76,0.08),transparent_70%)] after:opacity-0 after:transition-opacity after:duration-[400ms] hover:after:opacity-100">
               <div className="flex justify-between items-start mb-8 relative z-10">
                 <span className="text-[#C9A84C] font-jakarta text-2xl">#{hadith.number}</span>
                 <CopyButton textToCopy={`${hadith.arab}\n\n"${hadith.id}"\n\n— ${bookData.name} No. ${hadith.number}`} />
               </div>
               
-              <div className="mb-10 text-justify relative z-10">
-                <p className="font-neirizi text-3xl md:text-[2.5rem] text-[#F2EBD9] leading-[2.2] md:leading-[2.2] opacity-90" dir="rtl">
+              <div className="mb-6 mt-4 relative z-10">
+                <p className="font-neirizi text-2xl md:text-3xl text-[#E2C07A] text-right leading-[1.8] opacity-90" dir="rtl">
                   {hadith.arab}
                 </p>
               </div>
               
-              <div className="border-t border-[#C9A84C]/10 pt-8 relative z-10 text-justify">
-                <p className={`text-[#7A8F96] text-[0.95rem] md:text-base leading-[1.8] font-light ${montserrat.className}`}>
-                  {hadith.id}
-                </p>
+              <div className="border-t border-[#C9A84C]/10 pt-5 relative z-10 text-justify">
+                <blockquote className={`text-[#F2EBD9]/90 text-[0.95rem] md:text-base italic text-justify leading-relaxed border-l-2 border-[#C9A84C]/40 pl-3 ${montserrat.className}`}>
+                  "{hadith.id}"
+                </blockquote>
               </div>
             </div>
           ))}

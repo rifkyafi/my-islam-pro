@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { jakarta, neirizi, cormorant, montserrat } from "./pages/fonts";
+import { Suspense } from "react";
+import { SearchModal } from "./pages/components/SearchModal";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +30,12 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} ${jakarta.variable} ${neirizi.variable} ${cormorant.variable} ${montserrat.variable} h-full antialiased scroll-smooth`}
     >
-      <body className="min-h-full flex flex-col font-sans" cz-shortcut-listen="true">{children}</body>
+      <body className="min-h-full flex flex-col font-sans" cz-shortcut-listen="true">
+        {children}
+        <Suspense fallback={null}>
+          <SearchModal />
+        </Suspense>
+      </body>
     </html>
   );
 }

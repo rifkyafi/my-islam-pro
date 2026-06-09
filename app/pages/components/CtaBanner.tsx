@@ -14,7 +14,7 @@ export function CtaBanner() {
           </h2>
         </div>
         <div className="flex gap-4 flex-wrap shrink-0">
-          <Link href="/search" className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-[#C9A84C] text-[#0C1A1F] text-[0.85rem] font-semibold tracking-[0.5px] no-underline transition-all hover:bg-[#E2C07A] hover:-translate-y-0.5">
+          <Link href="?search=true" scroll={false} className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-[#C9A84C] text-[#0C1A1F] text-[0.85rem] font-semibold tracking-[0.5px] no-underline transition-all hover:bg-[#E2C07A] hover:-translate-y-0.5">
             Cari Hadis
             <ArrowRight size={16} />
           </Link>
