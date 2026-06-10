@@ -3,6 +3,8 @@ export interface DalilEntry {
   translation: string
   sourceInfo: string
   type: 'hadith' | 'quran'
+  audioUrl?: string
+  id?: string
 }
 
 export interface LifeTheme {

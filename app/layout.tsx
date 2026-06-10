@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { jakarta, neirizi, cormorant, montserrat } from "./pages/fonts";
 import { Suspense } from "react";
 import { SearchModal } from "./pages/components/SearchModal";
+import { AIModal } from "./pages/components/AIModal";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,6 +36,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <SearchModal />
         </Suspense>
+        <AIModal />
       </body>
     </html>
   );

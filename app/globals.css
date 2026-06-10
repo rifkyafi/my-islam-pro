@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   --background: #ffffff;
@@ -30,4 +31,36 @@ body {
 
 @utility font-montserrat {
   font-family: var(--font-montserrat), 'Montserrat', sans-serif;
+}
+
+/* Custom Global Text Selection */
+::selection {
+  background-color: rgba(212, 140, 70, 0.3); /* #D48C46/30 */
+  color: #F0F2F5;
+}
+
+/* Custom Global Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 140, 70, 0.2) #0A0F17;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: #0A0F17;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0F17;
+  background-color: #0A0F17;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 140, 70, 0.2); /* #D48C46/20 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 140, 70, 0.4);
 }

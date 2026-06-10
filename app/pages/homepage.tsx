@@ -81,7 +81,7 @@ export default async function HomePage() {
   const featuredHadith = await getFeaturedHadith();
 
   return (
-    <div className="font-sans selection:bg-[#C9A84C]/30 selection:text-[#F2EBD9]">
+    <div className="font-sans">
       <style>{`
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(24px); }

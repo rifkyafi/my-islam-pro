@@ -243,18 +243,22 @@ async function fetchHadiths(baseUrl: string, book: string, range: string) {
 
 async function fetchQuranAyat(baseUrl: string, surah: number, ayat: number): Promise<DalilEntry | null> {
   try {
-    const res = await fetch(`${baseUrl}/api/quran?endpoint=/quran/ayat/${surah}/${ayat}`, {
+    const res = await fetch(`${baseUrl}/api/quran?endpoint=/surat/${surah}`, {
       next: { revalidate: 3600 }
     });
     if (!res.ok) return null;
     const json = await res.json();
-    // API myQuran v2 mengembalikan: { data: [ { arab, text, ... } ], info: { surat: { nama: { id } } } }
-    const ayatData = Array.isArray(json.data) ? json.data[0] : json.data;
-    if (!ayatData) return null;
-    const surahName = json.info?.surat?.nama?.id ?? `Surah ${surah}`;
+    const data = json.data;
+    if (!data || !data.ayat) return null;
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const verse = data.ayat.find((v: any) => v.nomorAyat === ayat);
+    if (!verse) return null;
+    
+    const surahName = data.namaLatin ?? `Surah ${surah}`;
     return {
-      arabic: ayatData.arab ?? '',
-      translation: ayatData.text ?? '',
+      arabic: verse.teksArab ?? '',
+      translation: verse.teksIndonesia ?? '',
       sourceInfo: `QS. ${surahName} : ${ayat}`,
       type: 'quran',
     };
@@ -271,6 +275,7 @@ export default async function DalilPage() {
     const hadiths = await fetchHadiths(baseUrl, theme.book, theme.range);
     const bookName = hadiths.length > 0 ? `HR. ${theme.book.charAt(0).toUpperCase()}${theme.book.slice(1).replace('-', ' ')}` : '';
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const hadithDalils: DalilEntry[] = hadiths.slice(0, 2).map((h: any) => ({
       arabic: h.arab ?? '',
       translation: h.id ?? '',
@@ -305,6 +310,7 @@ export default async function DalilPage() {
       const hadiths = await fetchHadiths(baseUrl, item.book, item.range);
       const bookName = hadiths.length > 0 ? `HR. ${item.book.charAt(0).toUpperCase()}${item.book.slice(1).replace('-', ' ')}` : '';
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const hadithDalils: DalilEntry[] = hadiths.slice(0, 2).map((h: any) => ({
         arabic: h.arab ?? '',
         translation: h.id ?? '',
@@ -337,6 +343,7 @@ export default async function DalilPage() {
       const hadiths = await fetchHadiths(baseUrl, item.book, item.range);
       const bookName = hadiths.length > 0 ? `HR. ${item.book.charAt(0).toUpperCase()}${item.book.slice(1).replace('-', ' ')}` : '';
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const hadithDalils: DalilEntry[] = hadiths.slice(0, 2).map((h: any) => ({
         arabic: h.arab ?? '',
         translation: h.id ?? '',
@@ -364,22 +371,22 @@ export default async function DalilPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-[#0F2027] text-[#F2EBD9] py-24">
+    <div className="min-h-screen bg-[#12172B] text-[#F0F2F5] py-24">
       <div className="max-w-[1280px] mx-auto px-5 md:px-10">
-        <Link href="/" className="inline-flex items-center text-[#7A8F96] hover:text-[#C9A84C] transition-colors mb-10 text-sm tracking-widest uppercase gap-2">
+        <Link href="/" className="inline-flex items-center text-[#8B95A6] hover:text-[#D48C46] transition-colors mb-10 text-sm tracking-widest uppercase gap-2">
           <span>&larr;</span> Kembali ke Beranda
         </Link>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-3 border-b border-[#C9A84C]/18 pb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-3 border-b border-[#D48C46]/18 pb-10">
           <div>
-            <span className="block text-[0.68rem] font-semibold tracking-[4.5px] uppercase text-[#C9A84C] mb-3">Karakter Luhur</span>
-            <h1 className="font-cormorant text-[clamp(2.5rem,5vw,4rem)] font-normal leading-[1.1] text-[#F2EBD9]">
+            <span className="block text-[0.68rem] font-semibold tracking-[4.5px] uppercase text-[#D48C46] mb-3">Karakter Luhur</span>
+            <h1 className="font-cormorant text-[clamp(2.5rem,5vw,4rem)] font-normal leading-[1.1] text-[#F0F2F5]">
               Dalil-dalil
               <br />
               Pembinaan
             </h1>
           </div>
-          <p className="text-[1rem] lg:text-xl font-light font-neirizi  text-[#7A8F96] max-w-full md:max-w-[400px] md:text-right leading-[1.7]">
+          <p className="text-[1rem] lg:text-xl font-light font-neirizi  text-[#8B95A6] max-w-full md:max-w-[400px] md:text-right leading-[1.7]">
             Kumpulan dalil dari Al-Quran dan Hadits menjadi pijakan karakter luhur dan pembinaan generasi penerus umat Islam
           </p>
         </div>

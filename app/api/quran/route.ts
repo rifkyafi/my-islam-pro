@@ -4,10 +4,10 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     // Default endpoint to fetch all surahs if no specific endpoint is provided
-    const endpoint = searchParams.get('endpoint') || '/quran/surat/semua';
+    const endpoint = searchParams.get('endpoint') || '/surat';
     
-    // Get base URL from environment variable, fallback to the one provided
-    const baseUrl = process.env.NEXT_PUBLIC_MYQURAN_API_URL || 'https://api.myquran.com/v2';
+    // Get base URL from environment variable, fallback to equran.id
+    const baseUrl = process.env.NEXT_PUBLIC_QURAN_API_URL || 'https://equran.id/api/v2';
     
     // Format the URL properly
     const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     
     const fetchUrl = `${apiUrl}${fetchPath}`;
 
-    // Fetch data from MyQuran API
+    // Fetch data from Quran API
     const res = await fetch(fetchUrl, {
       headers: {
         'Content-Type': 'application/json',
@@ -33,9 +33,10 @@ export async function GET(request: Request) {
 
     const data = await res.json();
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json(
-      { error: 'Internal Server Error', message: error.message },
+      { error: 'Internal Server Error', message },
       { status: 500 }
     );
   }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import https from "https";
 
-function fetchWithHttps(url: string): Promise<{ status: number | undefined; data: any }> {
+function fetchWithHttps(url: string): Promise<{ status: number | undefined; data: unknown }> {
     return new Promise((resolve, reject) => {
         https.get(url, (res) => {
             let data = '';
