@@ -79,8 +79,6 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
       if (!hash || !hash.startsWith('#hadith-')) return false;
 
       const targetNumber = parseInt(hash.replace('#hadith-', ''), 10);
-      if (!isNaN(targetNumber)) {
-        }
 
       const element = document.getElementById(hash.replace('#', ''));
       if (!element) return false;

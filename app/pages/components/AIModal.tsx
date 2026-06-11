@@ -8,25 +8,44 @@ import ReactMarkdown from "react-markdown";
 
 const bookNameToId: Record<string, string> = {
   'bukhari': 'bukhari',
+  'imam bukhari': 'bukhari',
+  'shahih bukhari': 'bukhari',
   'muslim': 'muslim',
+  'imam muslim': 'muslim',
+  'shahih muslim': 'muslim',
   'abu daud': 'abu-daud',
   'abu dawud': 'abu-daud',
+  'sunan abu daud': 'abu-daud',
+  'sunan abu dawud': 'abu-daud',
   'tirmidzi': 'tirmidzi',
   'tirmizi': 'tirmidzi',
+  'sunan tirmidzi': 'tirmidzi',
+  'imam tirmidzi': 'tirmidzi',
   'nasai': 'nasai',
   "nasa'i": 'nasai',
+  'sunan nasai': 'nasai',
+  'imam nasai': 'nasai',
   'ibnu majah': 'ibnu-majah',
+  'ibn majah': 'ibnu-majah',
+  'sunan ibnu majah': 'ibnu-majah',
   'ahmad': 'ahmad',
+  'imam ahmad': 'ahmad',
+  'musnad ahmad': 'ahmad',
   'malik': 'malik',
+  'imam malik': 'malik',
+  'muwatha malik': 'malik',
   'darimi': 'darimi',
+  'sunan darimi': 'darimi',
 };
 
-const bookNamePattern = Object.keys(bookNameToId)
-  .sort((a, b) => b.length - a.length)
-  .join('|');
+const bookNameKeys = Object.keys(bookNameToId)
+  .sort((a, b) => b.length - a.length);
+const bookNamePattern = bookNameKeys.join('|');
 
+// Match formats: "HR. Bukhari No. 5641", "(HR. Bukhari no. 5641)", "Bukhari 5641", etc.
+// Also matches existing markdown link text to extract numbering
 const hadithRefRegex = new RegExp(
-  `(?:HR\\.?\\s*|Hadis(?:\\s+Riwayat|Riwayat)?\\s*|Hadits(?:\\s+Riwayat|Riwayat)?\\s*|Shahih\\s+)?(${bookNamePattern})\\s*,?\\s*(?:No\\.?|nomor)\\s*(\\d+)`,
+  `(?:HR\\.?\\s*(?::\\s*)?|Hadis(?:\\s+Riwayat|\\s+Riwayat)?\\s*|Hadits(?:\\s+Riwayat|\\s+Riwayat)?\\s*|Shahih\\s+|Sunan\\s+|Imam\\s+)?(${bookNamePattern})(?:\\s*[,;.]?\\s*(?:No\\.?|no\\.?|nomor|No|NO)\\s*[.:]?\\s*|\\s+#?)(\\d{1,5})`,
   'gi'
 );
 
@@ -34,28 +53,48 @@ function linkifyReferences(text: string): string {
   const links: string[] = [];
   const placeholder = (i: number) => `\x00LINK${i}\x00`;
 
-  // Protect existing markdown links and fix their page numbers
+  // First pass: protect existing markdown links and fix/complete them
   const withPlaceholders = text.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
     (match, linkText, url) => {
-      // Handle ALL hadith link formats (with or without &page=)
-      if (url.includes('/hadis?book=') && url.includes('#hadith-')) {
+      if (url.includes('/hadis?book=')) {
         const bookMatch = url.match(/\/hadis\?book=([^&]+)/);
+        const hasHash = url.includes('#hadith-');
+
+        // Try to extract number from existing hash or from link text
+        let number = '';
         const numMatch = url.match(/#hadith-(\d+)/);
-        if (bookMatch && numMatch) {
+        if (numMatch) {
+          number = numMatch[1];
+        } else {
+          // Try to extract number from link text like "HR. Bukhari No. 5641"
+          const textNum = linkText.match(/(\d{1,5})$/);
+          if (textNum) number = textNum[1];
+        }
+
+        if (bookMatch && number) {
           const book = bookMatch[1];
-          const number = numMatch[1];
           const correctPage = Math.ceil(parseInt(number, 10) / 50);
           const correctedUrl = `/hadis?book=${book}&page=${correctPage}#hadith-${number}`;
           links.push(`[${linkText}](${correctedUrl})`);
           return placeholder(links.length - 1);
         }
+        // Also fix quran links
+        if (url.includes('/quran?surah=')) {
+          links.push(match);
+          return placeholder(links.length - 1);
+        }
+      }
+      if (url.includes('/quran?surah=')) {
+        links.push(match);
+        return placeholder(links.length - 1);
       }
       links.push(match);
       return placeholder(links.length - 1);
     }
   );
 
+  // Second pass: convert plain text hadith references to markdown links
   const linkified = withPlaceholders.replace(
     hadithRefRegex,
     (match, bookName, number) => {
