@@ -9,7 +9,7 @@ export interface HadithBook {
 }
 
 export default async function HadisPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://my-islam-pro.vercel.app/';
   let books: HadithBook[] = [];
   
   try {
