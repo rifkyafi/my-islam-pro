@@ -435,7 +435,7 @@ export function AIModal() {
                       type="text"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                      onKeyDown={(e) => e.key === "Enter" && handleSend()}
                       placeholder="Ketik pesan di sini..."
                       className="w-full bg-[var(--bg-elevated)] border border-[var(--accent-border)] rounded-xl px-5 py-3.5 pr-14 text-[0.95rem] focus:outline-none focus:border-[var(--text-accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all placeholder:text-[var(--text-muted)]/40 text-[var(--text-primary)]"
                     />

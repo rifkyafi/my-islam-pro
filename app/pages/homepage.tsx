@@ -1,22 +1,9 @@
-import type { Metadata } from 'next'
 import { HeroSection } from './components/HeroSection'
 import { StatsStrip } from './components/StatsStrip'
 import { ThemesSection } from './components/ThemesSection'
 import { FeaturedHadith } from './components/FeaturedHadith'
 import { CtaBanner } from './components/CtaBanner'
 import { FeaturedHadithData } from './types'
-
-// ─── Metadata ─────────────────────────────────────────────────────────────────
-export const metadata: Metadata = {
-  title: 'Hadis Berdasarkan Tema Kehidupan',
-  description:
-    'Temukan petunjuk Rasulullah ﷺ berdasarkan tema kehidupan sehari-hari — tersusun sistematis, mudah dipahami dan diamalkan.',
-  openGraph: {
-    title: 'Hadis Berdasarkan Tema Kehidupan',
-    description: 'Koleksi hadis pilihan berdasarkan tema kehidupan.',
-    type: 'website',
-  },
-}
 
 async function getFeaturedHadith(): Promise<FeaturedHadithData | null> {
   try {
@@ -46,8 +33,8 @@ async function getFeaturedHadith(): Promise<FeaturedHadithData | null> {
     // Pilih nomor hadits secara pseudorandom dalam batas kitab yang terpilih
     const hadithNumber = (daysSinceEpoch * 137) % selectedBook.max + 1;
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/hadits?id=${selectedBook.id}&range=${hadithNumber}-${hadithNumber}`, {
+    const apiUrl = process.env.NEXT_PUBLIC_HADITS_API_URL || 'https://api.hadith.gading.dev';
+    const response = await fetch(`${apiUrl}/books/${selectedBook.id}?range=${hadithNumber}-${hadithNumber}`, {
       next: { revalidate: 86400 } // Cache selama 24 jam
     });
     

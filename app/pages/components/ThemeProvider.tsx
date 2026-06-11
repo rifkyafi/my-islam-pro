@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, startTransition, type ReactNode } from "react";
 
 interface ThemeContextType {
   theme: "light" | "dark";
@@ -18,19 +18,17 @@ export function useThemeContext() {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("my-islam-theme") as "light" | "dark" | null;
     if (stored) {
-      setTheme(stored);
+      startTransition(() => setTheme(stored));
       document.documentElement.classList.toggle("dark", stored === "dark");
     } else {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setTheme(prefersDark ? "dark" : "light");
+      startTransition(() => setTheme(prefersDark ? "dark" : "light"));
       document.documentElement.classList.toggle("dark", prefersDark);
     }
-    setMounted(true);
   }, []);
 
   const toggle = () => {

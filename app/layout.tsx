@@ -50,7 +50,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans" cz-shortcut-listen="true">
+      <body className="min-h-full flex flex-col font-sans">
         <ThemeProvider>
           <NavBar />
           <main className="flex-grow">

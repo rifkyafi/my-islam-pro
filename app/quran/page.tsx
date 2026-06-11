@@ -14,11 +14,11 @@ interface EQuranSurah {
 }
 
 export default async function QuranPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const quranApiUrl = process.env.NEXT_PUBLIC_QURAN_API_URL || 'https://equran.id/api/v2';
   let surahs: Surah[] = [];
-  
+
   try {
-    const response = await fetch(`${baseUrl}/api/quran?endpoint=/surat`, {
+    const response = await fetch(`${quranApiUrl}/surat`, {
       next: { revalidate: 3600 }
     });
     if (response.ok) {

@@ -24,8 +24,7 @@ export function ThemesSection() {
   const [books, setBooks] = useState<HadithBook[]>([])
 
   useEffect(() => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    fetch(`${baseUrl}/api/hadits`)
+    fetch(`/api/hadits`)
       .then(r => r.ok ? r.json() : null)
       .then(j => { if (j?.data) setBooks(j.data) })
       .catch(() => {})

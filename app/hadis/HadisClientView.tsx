@@ -35,7 +35,6 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
   const [bookData, setBookData] = useState<BookData | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
-  const [activeHadithNumber, setActiveHadithNumber] = useState<number | null>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const fetchedRef = useRef<string>('');
   const requestedRef = useRef<string>('');
@@ -81,8 +80,7 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
 
       const targetNumber = parseInt(hash.replace('#hadith-', ''), 10);
       if (!isNaN(targetNumber)) {
-        setActiveHadithNumber(targetNumber);
-      }
+        }
 
       const element = document.getElementById(hash.replace('#', ''));
       if (!element) return false;

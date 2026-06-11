@@ -337,7 +337,7 @@ export function SearchModal() {
                           onClick={() => {
                             const position = r.rangeStart ?? r.number;
                             const page = Math.ceil(position / 50);
-                            window.location.href = `/hadis?book=${r.bookId}&page=${page}#hadith-${r.number}`;
+                            router.push(`/hadis?book=${r.bookId}&page=${page}#hadith-${r.number}`);
                           }}
                           className="w-full text-left px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors"
                         >

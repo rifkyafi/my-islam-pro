@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useThemeContext } from './ThemeProvider'
 import { SunIcon, MoonIcon } from './Icons'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, startTransition } from 'react'
 
 const navItems = [
   { href: '/', label: 'Beranda' },
@@ -17,7 +17,7 @@ function ThemeToggle() {
   const { theme, toggle } = useThemeContext()
   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => startTransition(() => setMounted(true)), [])
 
   if (!mounted) {
     return <div className="w-9 h-9" />

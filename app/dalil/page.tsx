@@ -228,9 +228,10 @@ const rukunData = [
   }
 ];
 
-async function fetchHadiths(baseUrl: string, book: string, range: string) {
+async function fetchHadiths(book: string, range: string) {
+  const apiUrl = process.env.NEXT_PUBLIC_HADITS_API_URL || 'https://api.hadith.gading.dev';
   try {
-    const res = await fetch(`${baseUrl}/api/hadits?id=${book}&range=${range}`, {
+    const res = await fetch(`${apiUrl}/books/${book}?range=${range}`, {
       next: { revalidate: 3600 }
     });
     if (!res.ok) return [];
@@ -241,9 +242,10 @@ async function fetchHadiths(baseUrl: string, book: string, range: string) {
   }
 }
 
-async function fetchQuranAyat(baseUrl: string, surah: number, ayat: number): Promise<DalilEntry | null> {
+async function fetchQuranAyat(surah: number, ayat: number): Promise<DalilEntry | null> {
+  const apiUrl = process.env.NEXT_PUBLIC_QURAN_API_URL || 'https://equran.id/api/v2';
   try {
-    const res = await fetch(`${baseUrl}/api/quran?endpoint=/surat/${surah}`, {
+    const res = await fetch(`${apiUrl}/surat/${surah}`, {
       next: { revalidate: 3600 }
     });
     if (!res.ok) return null;
@@ -268,11 +270,9 @@ async function fetchQuranAyat(baseUrl: string, surah: number, ayat: number): Pro
 }
 
 export default async function DalilPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
   const dalils = await Promise.all(themesData.map(async (theme) => {
     // Fetch hadits
-    const hadiths = await fetchHadiths(baseUrl, theme.book, theme.range);
+    const hadiths = await fetchHadiths(theme.book, theme.range);
     const bookName = hadiths.length > 0 ? `HR. ${theme.book.charAt(0).toUpperCase()}${theme.book.slice(1).replace('-', ' ')}` : '';
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -285,7 +285,7 @@ export default async function DalilPage() {
 
     // Fetch ayat Quran secara paralel
     const quranDalils = (await Promise.all(
-      (theme.quranRefs ?? []).map(({ surah, ayat }) => fetchQuranAyat(baseUrl, surah, ayat))
+      (theme.quranRefs ?? []).map(({ surah, ayat }) => fetchQuranAyat(surah, ayat))
     )).filter((d): d is DalilEntry => d !== null);
 
     const allDalils: DalilEntry[] = [...hadithDalils, ...quranDalils];
@@ -307,7 +307,7 @@ export default async function DalilPage() {
   const dalilKarakterData = await Promise.all(dalilKarakter.map(async (theme) => {
     // Fetch dalils per sub-item
     const itemsWithDalils = await Promise.all(theme.items.map(async (item) => {
-      const hadiths = await fetchHadiths(baseUrl, item.book, item.range);
+      const hadiths = await fetchHadiths(item.book, item.range);
       const bookName = hadiths.length > 0 ? `HR. ${item.book.charAt(0).toUpperCase()}${item.book.slice(1).replace('-', ' ')}` : '';
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -320,7 +320,7 @@ export default async function DalilPage() {
 
       // Fetch ayat Quran secara paralel
       const quranDalils = (await Promise.all(
-        (item.quranRefs ?? []).map(({ surah, ayat }) => fetchQuranAyat(baseUrl, surah, ayat))
+        (item.quranRefs ?? []).map(({ surah, ayat }) => fetchQuranAyat(surah, ayat))
       )).filter((d): d is DalilEntry => d !== null);
 
       const allDalils: DalilEntry[] = [...hadithDalils, ...quranDalils];
@@ -340,7 +340,7 @@ export default async function DalilPage() {
   const rukunDalilsData = await Promise.all(rukunData.map(async (theme) => {
     // Fetch dalils per sub-item
     const itemsWithDalils = await Promise.all(theme.items.map(async (item) => {
-      const hadiths = await fetchHadiths(baseUrl, item.book, item.range);
+      const hadiths = await fetchHadiths(item.book, item.range);
       const bookName = hadiths.length > 0 ? `HR. ${item.book.charAt(0).toUpperCase()}${item.book.slice(1).replace('-', ' ')}` : '';
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -353,7 +353,7 @@ export default async function DalilPage() {
 
       // Fetch ayat Quran secara paralel
       const quranDalils = (await Promise.all(
-        (item.quranRefs ?? []).map(({ surah, ayat }) => fetchQuranAyat(baseUrl, surah, ayat))
+        (item.quranRefs ?? []).map(({ surah, ayat }) => fetchQuranAyat(surah, ayat))
       )).filter((d): d is DalilEntry => d !== null);
 
       const allDalils: DalilEntry[] = [...hadithDalils, ...quranDalils];

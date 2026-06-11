@@ -9,11 +9,11 @@ export interface HadithBook {
 }
 
 export default async function HadisPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://my-islam-pro.vercel.app/';
+  const haditsApiUrl = process.env.NEXT_PUBLIC_HADITS_API_URL || 'https://api.hadith.gading.dev';
   let books: HadithBook[] = [];
   
   try {
-    const response = await fetch(`${baseUrl}/api/hadits`, {
+    const response = await fetch(`${haditsApiUrl}/books`, {
       next: { revalidate: 3600 }
     });
     if (response.ok) {

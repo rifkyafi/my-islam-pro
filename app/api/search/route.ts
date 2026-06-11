@@ -547,43 +547,31 @@ export async function GET(request: Request) {
     .map(v => ({ v, score: scoreKeyVerse(v, queryWords, expandedWords, query) }))
     .filter(x => x.score > 0);
 
-  // Map Surahs to QuranResults
-  const quranSurahResults = scoredSurahs.map(({ s, score }) => ({
+  // Map Surahs to QuranResults (keep score in separate tuple for sorting)
+  interface QuranResultItem {
+    type: "quran"; nomor: number; nama: string; namaLatin: string;
+    arti: string; jumlahAyat: number; tempatTurun: string;
+    ayatNomor?: number; ayatTeks?: string; ayatTerjemahan?: string;
+  }
+  const quranSurahResults: [number, QuranResultItem][] = scoredSurahs.map(({ s, score }) => ([
     score,
-    type: "quran" as const,
-    nomor: s.nomor,
-    nama: s.nama,
-    namaLatin: s.namaLatin,
-    arti: s.arti,
-    jumlahAyat: s.jumlahAyat,
-    tempatTurun: s.tempatTurun,
-  }));
+    { type: "quran", nomor: s.nomor, nama: s.nama, namaLatin: s.namaLatin, arti: s.arti, jumlahAyat: s.jumlahAyat, tempatTurun: s.tempatTurun },
+  ]));
 
   // Map Verses to QuranResults (cross-referencing with surah metadata)
-  const quranVerseResults = scoredKeyVerses.map(({ v, score }) => {
+  const quranVerseResults: [number, QuranResultItem][] = scoredKeyVerses.map(({ v, score }) => {
     const sDetail = surahIndex.find(s => s.nomor === v.surahNomor);
-    return {
-      score: score + 10, // give a small rank adjustment boost so matching verses rank well
-      type: "quran" as const,
-      nomor: v.surahNomor,
-      nama: sDetail?.nama ?? "",
-      namaLatin: v.surahName,
-      arti: sDetail?.arti ?? "",
-      jumlahAyat: sDetail?.jumlahAyat ?? 0,
-      tempatTurun: sDetail?.tempatTurun ?? "",
-      ayatNomor: v.ayatNomor,
-      ayatTeks: v.arab,
-      ayatTerjemahan: v.translation
-    };
+    return [
+      score + 10,
+      { type: "quran", nomor: v.surahNomor, nama: sDetail?.nama ?? "", namaLatin: v.surahName, arti: sDetail?.arti ?? "", jumlahAyat: sDetail?.jumlahAyat ?? 0, tempatTurun: sDetail?.tempatTurun ?? "", ayatNomor: v.ayatNomor, ayatTeks: v.arab, ayatTerjemahan: v.translation },
+    ];
   });
 
-  // Combine and sort by score
-  const combinedQuran = [...quranSurahResults, ...quranVerseResults]
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 8);
-
-  // Strip score for output
-  const quranResults = combinedQuran.map(({ score, ...rest }) => rest);
+  // Combine and sort by score, then map to strip score
+  const quranResults = [...quranSurahResults, ...quranVerseResults]
+    .sort((a, b) => b[0] - a[0])
+    .slice(0, 8)
+    .map(([, result]) => result);
 
   return NextResponse.json({ results: hadithResults, quranResults, indexed: indexBuilt });
 }

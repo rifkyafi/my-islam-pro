@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, startTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CardList } from '../pages/components/CardList';
 
@@ -43,15 +43,17 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
   const [loading, setLoading] = useState(false);
   const [surahDetail, setSurahSurahDetail] = useState<Surah | null>(null);
   const [autoExpanded, setAutoExpanded] = useState(false);
-  const cardListKey = useRef(0);
+  const [cardListKey, setCardListKey] = useState(0);
 
   useEffect(() => {
     const s = Number(searchParams.get('surah'));
     if (s && s !== activeSurahNo) {
-      setTargetAyat(0);
-      setAutoExpanded(false);
-      cardListKey.current++;
-      setTimeout(() => setActiveSurahNo(s), 0);
+      startTransition(() => {
+        setTargetAyat(0);
+        setAutoExpanded(false);
+        setCardListKey(k => k + 1);
+      });
+      setTimeout(() => startTransition(() => setActiveSurahNo(s)), 0);
     }
   }, [searchParams, activeSurahNo]);
 
@@ -60,8 +62,10 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
     if (hash.startsWith('#ayat-')) {
       const ayatNo = Number(hash.replace('#ayat-', ''));
       if (ayatNo) {
-        setTargetAyat(ayatNo);
-        setAutoExpanded(false);
+        startTransition(() => {
+          setTargetAyat(ayatNo);
+          setAutoExpanded(false);
+        });
       }
     }
   }, [searchParams]);
@@ -111,7 +115,7 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
   useEffect(() => {
     if (loading || verses.length === 0 || !targetAyat || autoExpanded) return;
 
-    setAutoExpanded(true);
+    startTransition(() => setAutoExpanded(true));
 
     const el = document.getElementById(`ayat-${targetAyat}`);
     if (el) {
@@ -207,7 +211,7 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
                       setActiveSurahNo(surah.nomor);
                       setTargetAyat(0);
                       setAutoExpanded(false);
-                      cardListKey.current++;
+                      setCardListKey(k => k + 1);
                     }}
                     className={`text-[0.8rem] lg:text-[0.85rem] text-left px-4 py-2 lg:px-3 lg:py-2.5 rounded-full lg:rounded-md transition-all whitespace-nowrap shadow-sm lg:shadow-none border flex items-center gap-3 ${
                       isActive 
@@ -241,7 +245,7 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
             </div>
           </div>
         ) : activeSurah && (
-          <div key={cardListKey.current} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div key={cardListKey} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <CardList 
               collapseAll={true}
               theme={{

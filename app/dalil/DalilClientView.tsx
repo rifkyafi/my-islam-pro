@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, startTransition } from 'react';
 import { CardList } from '../pages/components/CardList';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,7 +28,7 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
   // Use useEffect for side-effects instead of doing it during render
   useEffect(() => {
     if (activeData && activeSubId === null && activeData.items.length > 0) {
-      setActiveSubId(activeData.items[0].no);
+      startTransition(() => setActiveSubId(activeData.items[0].no));
     }
   }, [activeData, activeSubId]);
 

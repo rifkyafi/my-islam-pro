@@ -17,7 +17,7 @@ const BOOK_META: Record<string, { arabic: string; abbr: string; roman: string }>
   'quran':     { arabic: 'القرآن',     abbr: 'QRN', roman: 'X'   },
 };
 
-export function ThemeCard({ theme, size = 'md' }: { theme: LifeTheme; size?: 'sm' | 'md' | 'lg' }) {
+export function ThemeCard({ theme }: { theme: LifeTheme; size?: 'sm' | 'md' | 'lg' }) {
   const meta = BOOK_META[theme.slug] ?? { arabic: 'كتاب', abbr: '—', roman: '' };
   const formattedCount = String(theme.hadithCount).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
