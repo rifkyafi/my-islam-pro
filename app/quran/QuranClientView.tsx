@@ -191,7 +191,7 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
       `}</style>
       {/* Sidebar: Surah List */}
       <aside className="w-full lg:w-[280px] shrink-0 relative z-40">
-        <div className="sticky top-0 lg:top-28 pt-4 lg:pt-0 -mx-5 px-5 lg:mx-0 lg:px-0 bg-[#12172B]/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none lg:max-h-[calc(100vh-140px)] overflow-x-auto lg:overflow-y-auto lg:pr-4 scrollbar-none lg:scrollbar-thin lg:scrollbar-thumb-[#D48C46]/20 lg:scrollbar-track-transparent pb-4 border-b border-[#D48C46]/10 lg:border-b-0">
+        <div className="sticky top-0 lg:top-28 pt-4 lg:pt-0 -mx-5 px-5 lg:mx-0 lg:px-0 bg-[var(--bg-primary)]/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none lg:max-h-[calc(100vh-140px)] overflow-x-auto lg:overflow-y-auto lg:pr-4 scrollbar-none lg:scrollbar-thin lg:scrollbar-thumb-[#D48C46]/20 lg:scrollbar-track-transparent pb-4 border-b border-[#D48C46]/10 lg:border-b-0">
           
           <div className="flex flex-row lg:flex-col gap-2 w-max lg:w-auto">
             <h4 className="hidden lg:block text-[#D48C46] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-6">
@@ -211,11 +211,11 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
                     }}
                     className={`text-[0.8rem] lg:text-[0.85rem] text-left px-4 py-2 lg:px-3 lg:py-2.5 rounded-full lg:rounded-md transition-all whitespace-nowrap shadow-sm lg:shadow-none border flex items-center gap-3 ${
                       isActive 
-                        ? 'bg-[#25304C] text-[#F0F2F5] border-[#D48C46]/40' 
-                        : 'text-[#8B95A6] hover:text-[#F0F2F5] hover:bg-[#25304C] bg-[#1A223D] lg:bg-transparent border-[#D48C46]/20 lg:border-transparent'
+                        ? 'bg-[var(--bg-card-hover)] text-[var(--text-primary)] border-[var(--accent)]' 
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] bg-[var(--bg-card)] lg:bg-transparent border-[var(--accent-border)] lg:border-transparent'
                     }`}
                   >
-                    <span className={`flex items-center justify-center w-6 h-6 rounded-full text-[0.6rem] font-bold ${isActive ? 'bg-[#D48C46] text-[#12172B]' : 'bg-[#12172B] text-[#D48C46] border border-[#D48C46]/20'}`}>
+                    <span className={`flex items-center justify-center w-6 h-6 rounded-full text-[0.6rem] font-bold ${isActive ? 'bg-[#D48C46] text-[var(--text-on-accent)]' : 'bg-[var(--bg-primary)] text-[#D48C46] border border-[var(--accent-border)]'}`}>
                       {surah.nomor}
                     </span>
                     <div className="flex flex-col leading-tight">

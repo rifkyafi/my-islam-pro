@@ -2,9 +2,72 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useRouter } from "next/navigation";
 import { Send, Bot, User, Trash2, Sparkles, X, MessageCircle, AlertCircle, Copy, Check } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { useRouter } from "next/navigation";
+
+const bookNameToId: Record<string, string> = {
+  'bukhari': 'bukhari',
+  'muslim': 'muslim',
+  'abu daud': 'abu-daud',
+  'abu dawud': 'abu-daud',
+  'tirmidzi': 'tirmidzi',
+  'tirmizi': 'tirmidzi',
+  'nasai': 'nasai',
+  "nasa'i": 'nasai',
+  'ibnu majah': 'ibnu-majah',
+  'ahmad': 'ahmad',
+  'malik': 'malik',
+  'darimi': 'darimi',
+};
+
+const bookNamePattern = Object.keys(bookNameToId)
+  .sort((a, b) => b.length - a.length)
+  .join('|');
+
+const hadithRefRegex = new RegExp(
+  `(?:HR\\.?\\s*|Hadis(?:\\s+Riwayat|Riwayat)?\\s*|Hadits(?:\\s+Riwayat|Riwayat)?\\s*|Shahih\\s+)?(${bookNamePattern})\\s*,?\\s*(?:No\\.?|nomor)\\s*(\\d+)`,
+  'gi'
+);
+
+function linkifyReferences(text: string): string {
+  const links: string[] = [];
+  const placeholder = (i: number) => `\x00LINK${i}\x00`;
+
+  // Protect existing markdown links and fix their page numbers
+  const withPlaceholders = text.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    (match, linkText, url) => {
+      // Handle ALL hadith link formats (with or without &page=)
+      if (url.includes('/hadis?book=') && url.includes('#hadith-')) {
+        const bookMatch = url.match(/\/hadis\?book=([^&]+)/);
+        const numMatch = url.match(/#hadith-(\d+)/);
+        if (bookMatch && numMatch) {
+          const book = bookMatch[1];
+          const number = numMatch[1];
+          const correctPage = Math.ceil(parseInt(number, 10) / 50);
+          const correctedUrl = `/hadis?book=${book}&page=${correctPage}#hadith-${number}`;
+          links.push(`[${linkText}](${correctedUrl})`);
+          return placeholder(links.length - 1);
+        }
+      }
+      links.push(match);
+      return placeholder(links.length - 1);
+    }
+  );
+
+  const linkified = withPlaceholders.replace(
+    hadithRefRegex,
+    (match, bookName, number) => {
+      const id = bookNameToId[bookName.toLowerCase()];
+      if (!id) return match;
+      const page = Math.ceil(parseInt(number, 10) / 50);
+      return `[${match}](/hadis?book=${id}&page=${page}#hadith-${number})`;
+    }
+  );
+
+  return linkified.replace(/\x00LINK(\d+)\x00/g, (_, i) => links[parseInt(i, 10)]);
+}
 
 interface Message {
   role: "user" | "assistant";
@@ -23,7 +86,7 @@ function CopyMessageButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#D48C46]/5 hover:bg-[#D48C46]/20 border border-[#D48C46]/10 text-[#8B95A6] hover:text-[#D48C46] transition-all text-[0.7rem] uppercase tracking-wider"
+      className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#D48C46]/5 hover:bg-[#D48C46]/20 border border-[#D48C46]/10 text-[var(--text-muted)] hover:text-[#D48C46] transition-all text-[0.7rem] uppercase tracking-wider"
       title="Salin pesan"
     >
       {copied ? (
@@ -204,7 +267,7 @@ export function AIModal() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-[999] w-14 h-14 bg-[#D48C46] text-[#090C15] rounded-full shadow-[0_8px_32px_rgba(212,140,70,0.3)] flex items-center justify-center border border-[#D48C46]/20 group overflow-hidden"
+        className="fixed bottom-6 right-6 z-[999] w-14 h-14 bg-[#D48C46] text-[var(--text-on-accent)] rounded-full shadow-[0_8px_32px_rgba(212,140,70,0.3)] flex items-center justify-center border border-[#D48C46]/20 group overflow-hidden"
       >
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent,rgba(255,255,255,0.2),transparent)] translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
         <MessageCircle className="w-7 h-7" />
@@ -220,7 +283,7 @@ export function AIModal() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="absolute inset-0 bg-[#090C15]/60 backdrop-blur-md"
+              className="absolute inset-0 bg-[var(--bg-overlay)] backdrop-blur-md"
             />
 
             {/* Modal Content */}
@@ -228,10 +291,10 @@ export function AIModal() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-[800px] h-[85vh] bg-[#0E1324] border border-[#D48C46]/20 rounded-3xl shadow-[0_24px_64px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden"
+              className="relative w-full max-w-[800px] h-[85vh] bg-[var(--bg-secondary)] border border-[var(--accent-border)] rounded-3xl shadow-[0_24px_64px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden"
             >
               {/* Modal Header */}
-              <div className="px-6 py-4 border-b border-[#D48C46]/10 flex items-center justify-between bg-[#0E1324]/80 backdrop-blur-sm sticky top-0 z-10">
+              <div className="px-6 py-4 border-b border-[#D48C46]/10 flex items-center justify-between bg-[var(--bg-secondary)]/80 backdrop-blur-sm sticky top-0 z-10">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-[#D48C46]/10 flex items-center justify-center border border-[#D48C46]/20">
                     <Bot className="w-6 h-6 text-[#D48C46]" />
@@ -242,13 +305,13 @@ export function AIModal() {
                     </h2>
                     <div className="flex items-center gap-1.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-[0.65rem] text-[#8B95A6] uppercase tracking-wider">Online</span>
+                      <span className="text-[0.65rem] text-[var(--text-muted)] uppercase tracking-wider">Online</span>
                     </div>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-lg hover:bg-[#D48C46]/10 text-[#8B95A6] hover:text-[#D48C46] transition-all"
+                  className="p-2 rounded-lg hover:bg-[#D48C46]/10 text-[var(--text-muted)] hover:text-[#D48C46] transition-all"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -274,7 +337,7 @@ export function AIModal() {
                         <button
                           key={q}
                           onClick={() => handleSend(q)}
-                          className="text-[0.75rem] px-4 py-2 rounded-full border border-[#D48C46]/10 bg-[#D48C46]/5 text-[#D1A582] hover:bg-[#D48C46]/15 hover:border-[#D48C46]/30 transition-all"
+                          className="text-[0.75rem] px-4 py-2 rounded-full border border-[#D48C46]/10 bg-[#D48C46]/5 text-[var(--text-secondary)] hover:bg-[#D48C46]/15 hover:border-[var(--accent)] transition-all"
                         >
                           {q}
                         </button>
@@ -292,8 +355,8 @@ export function AIModal() {
                       <div
                         className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${
                           msg.role === "user"
-                            ? "bg-[#D48C46] text-[#090C15]"
-                            : "bg-[#1A2238] border border-[#D48C46]/20 text-[#D48C46]"
+                            ? "bg-[#D48C46] text-[var(--text-on-accent)]"
+                            : "bg-[var(--bg-elevated)] border border-[var(--accent-border)] text-[#D48C46]"
                         }`}
                       >
                         {msg.role === "user" ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
@@ -301,8 +364,8 @@ export function AIModal() {
                       <div
                         className={`group/msg max-w-[85%] md:max-w-[75%] px-5 py-4 rounded-2xl text-[0.95rem] leading-relaxed ${
                           msg.role === "user"
-                            ? "bg-[#D48C46]/10 border border-[#D48C46]/20 text-[#F0F2F5] rounded-tr-none"
-                            : "bg-[#1A2238] border border-[#D48C46]/10 text-[#CED4DA] rounded-tl-none"
+                            ? "bg-[#D48C46]/10 border border-[var(--accent-border)] text-[var(--text-primary)] rounded-tr-none"
+                            : "bg-[var(--bg-elevated)] border border-[#D48C46]/10 text-[var(--text-primary)]/85 rounded-tl-none"
                         }`}
                       >
                         <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-[#090C15] prose-pre:border prose-pre:border-[#D48C46]/20">
@@ -314,10 +377,10 @@ export function AIModal() {
                                     onClick={() => {
                                       if (href) {
                                         setIsOpen(false);
-                                        router.push(href, { scroll: false });
+                                        router.push(href);
                                       }
                                     }}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#D48C46]/10 border border-[#D48C46]/30 text-[#D48C46] rounded-md text-[0.75rem] no-underline hover:bg-[#D48C46]/20 transition-all mt-2 font-medium group/link cursor-pointer"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#D48C46]/10 border border-[var(--accent)] text-[#D48C46] rounded-md text-[0.75rem] no-underline hover:bg-[#D48C46]/20 transition-all mt-2 font-medium group/link cursor-pointer"
                                   >
                                     {children}
                                     <svg className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,7 +391,7 @@ export function AIModal() {
                               },
                             }}
                           >
-                            {msg.content}
+                            {linkifyReferences(msg.content || '')}
                           </ReactMarkdown>
                         </div>
                         
@@ -343,10 +406,10 @@ export function AIModal() {
                 )}
                 {isLoading && (
                   <div className="flex gap-4">
-                    <div className="w-9 h-9 rounded-xl bg-[#1A2238] border border-[#D48C46]/20 text-[#D48C46] flex items-center justify-center shadow-lg">
+                    <div className="w-9 h-9 rounded-xl bg-[var(--bg-elevated)] border border-[var(--accent-border)] text-[#D48C46] flex items-center justify-center shadow-lg">
                       <Bot className="w-5 h-5 animate-pulse" />
                     </div>
-                    <div className="px-5 py-4 rounded-2xl bg-[#1A2238] border border-[#D48C46]/10 text-[#CED4DA] rounded-tl-none animate-pulse flex gap-1 items-center">
+                    <div className="px-5 py-4 rounded-2xl bg-[var(--bg-elevated)] border border-[#D48C46]/10 text-[var(--text-primary)]/85 rounded-tl-none animate-pulse flex gap-1 items-center">
                       <span className="w-1 h-1 bg-[#D48C46] rounded-full animate-bounce" />
                       <span className="w-1 h-1 bg-[#D48C46] rounded-full animate-bounce [animation-delay:0.2s]" />
                       <span className="w-1 h-1 bg-[#D48C46] rounded-full animate-bounce [animation-delay:0.4s]" />
@@ -357,12 +420,12 @@ export function AIModal() {
               </div>
 
               {/* Input Area */}
-              <div className="p-4 md:p-6 bg-[#0E1324] border-t border-[#D48C46]/10">
+              <div className="p-4 md:p-6 bg-[var(--bg-secondary)] border-t border-[#D48C46]/10">
                 <div className="flex gap-3 items-center max-w-[700px] mx-auto">
                   <button
                     onClick={() => setShowAlert(true)}
                     disabled={messages.length === 0}
-                    className="p-3 rounded-xl bg-[#D48C46]/5 border border-[#D48C46]/10 text-[#8B95A6] hover:text-[#FF4B4B] hover:bg-[#FF4B4B]/10 hover:border-[#FF4B4B]/20 transition-all disabled:opacity-20 disabled:cursor-not-allowed shrink-0"
+                    className="p-3 rounded-xl bg-[#D48C46]/5 border border-[#D48C46]/10 text-[var(--text-muted)] hover:text-[#FF4B4B] hover:bg-[#FF4B4B]/10 hover:border-[#FF4B4B]/20 transition-all disabled:opacity-20 disabled:cursor-not-allowed shrink-0"
                     title="Hapus Percakapan"
                   >
                     <Trash2 className="w-5 h-5" />
@@ -374,20 +437,20 @@ export function AIModal() {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && handleSend()}
                       placeholder="Ketik pesan di sini..."
-                      className="w-full bg-[#1A2238] border border-[#D48C46]/20 rounded-xl px-5 py-3.5 pr-14 text-[0.95rem] focus:outline-none focus:border-[#D48C46] focus:ring-1 focus:ring-[#D48C46]/30 transition-all placeholder:text-[#8B95A6]/40 text-[#F0F2F5]"
+                      className="w-full bg-[var(--bg-elevated)] border border-[var(--accent-border)] rounded-xl px-5 py-3.5 pr-14 text-[0.95rem] focus:outline-none focus:border-[#D48C46] focus:ring-1 focus:ring-[#D48C46]/30 transition-all placeholder:text-[var(--text-muted)]/40 text-[var(--text-primary)]"
                     />
                     <button
                       onClick={() => handleSend()}
                       disabled={!input.trim() || isLoading}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-lg bg-[#D48C46] text-[#090C15] hover:bg-[#B87A3D] transition-all disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed shadow-lg"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-lg bg-[#D48C46] text-[var(--text-on-accent)] hover:bg-[#B87A3D] transition-all disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed shadow-lg"
                     >
                       <Send className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
                 <div className="text-center mt-3">
-                  <span className="text-[0.6rem] text-[#8B95A6]/40 uppercase tracking-[2px]">
-                    Khusus Konteks Keislaman
+                  <span className="text-[0.6rem] text-[var(--text-muted)]/40 uppercase tracking-[2px]">
+                    Tetap Tanyakan Ke Guru untuk meyakinkan 
                   </span>
                 </div>
               </div>
@@ -400,26 +463,26 @@ export function AIModal() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute inset-0 bg-[#090C15]/80 backdrop-blur-md"
+                      className="absolute inset-0 bg-[var(--bg-overlay)] backdrop-blur-md"
                       onClick={() => setShowAlert(false)}
                     />
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
-                      className="relative w-full max-w-[340px] bg-[#1A2238] border border-[#FF4B4B]/30 rounded-2xl p-6 shadow-2xl text-center"
+                      className="relative w-full max-w-[340px] bg-[var(--bg-elevated)] border border-[#FF4B4B]/30 rounded-2xl p-6 shadow-2xl text-center"
                     >
                       <div className="w-14 h-14 rounded-full bg-[#FF4B4B]/10 flex items-center justify-center mx-auto mb-4 border border-[#FF4B4B]/20">
                         <AlertCircle className="w-8 h-8 text-[#FF4B4B]" />
                       </div>
-                      <h4 className="text-lg font-semibold text-[#F0F2F5] mb-2">Hapus Percakapan?</h4>
-                      <p className="text-sm text-[#8B95A6] mb-6 leading-relaxed">
+                      <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">Hapus Percakapan?</h4>
+                      <p className="text-sm text-[var(--text-muted)] mb-6 leading-relaxed">
                         Seluruh riwayat chat dengan asisten AI akan dihapus secara permanen.
                       </p>
                       <div className="grid grid-cols-2 gap-3">
                         <button
                           onClick={() => setShowAlert(false)}
-                          className="px-4 py-2.5 rounded-xl border border-[#D48C46]/20 text-[#D1A582] hover:bg-[#D48C46]/10 transition-all text-sm"
+                          className="px-4 py-2.5 rounded-xl border border-[var(--accent-border)] text-[var(--text-secondary)] hover:bg-[#D48C46]/10 transition-all text-sm"
                         >
                           Batal
                         </button>

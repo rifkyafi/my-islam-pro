@@ -2,13 +2,39 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useThemeContext } from './ThemeProvider'
+import { SunIcon, MoonIcon } from './Icons'
+import { useEffect, useState } from 'react'
+
+function ThemeToggle() {
+  const { theme, toggle } = useThemeContext()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  if (!mounted) {
+    return <div className="w-9 h-9" />
+  }
+
+  return (
+    <button
+      onClick={toggle}
+      className="flex items-center justify-center w-9 h-9 border border-[#D48C46]/30 text-[#D48C46] hover:bg-[#D48C46]/10 transition-all"
+      aria-label={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+    >
+      <div className="transition-transform duration-300 hover:rotate-12">
+        {theme === 'dark' ? <SunIcon size={16} /> : <MoonIcon size={16} />}
+      </div>
+    </button>
+  )
+}
 
 function NavInner() {
   const pathname = usePathname();
   const isHome = pathname === '/';
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#090C15]/85 backdrop-blur-[20px] border-b border-[#D48C46]/12">
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[var(--nav-bg)] backdrop-blur-[20px] border-b border-[#D48C46]/12">
       <div className="max-w-[1280px] mx-auto px-5 md:px-10 h-16 flex items-center justify-between">
 
         {/* Logo */}
@@ -18,10 +44,10 @@ function NavInner() {
             <div className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#D48C46]/40 group-hover:bg-[#D48C46] transition-colors duration-300" />
           </div>
           <div className="flex flex-col leading-none">
-            <span className="font-cormorant text-[0.95rem] font-semibold text-[#F0F2F5] tracking-[0.5px]">
+            <span className="font-cormorant text-[0.95rem] font-semibold text-[var(--text-primary)] tracking-[0.5px]">
               Hadis Tematik
             </span>
-            <span className="text-[0.55rem] tracking-[2.5px] uppercase text-[#8B95A6]/70 mt-0.5">
+            <span className="text-[0.55rem] tracking-[2.5px] uppercase text-[var(--text-muted)] mt-0.5">
               Koleksi Hadis
             </span>
           </div>
@@ -34,7 +60,7 @@ function NavInner() {
               <li>
                 <a
                   href="#tema"
-                  className="relative px-4 py-2 text-[0.8rem] font-normal text-[#8B95A6] no-underline tracking-[0.5px] transition-colors hover:text-[#F0F2F5] group flex items-center gap-1.5"
+                  className="relative px-4 py-2 text-[0.8rem] font-normal text-[var(--text-muted)] no-underline tracking-[0.5px] transition-colors hover:text-[var(--text-primary)] group flex items-center gap-1.5"
                 >
                   <span className="w-1 h-1 rounded-full bg-[#D48C46]/50 group-hover:bg-[#D48C46] transition-colors duration-200" />
                   Kitab
@@ -43,7 +69,7 @@ function NavInner() {
               <li>
                 <a
                   href="#hadis-pilihan"
-                  className="relative px-4 py-2 text-[0.8rem] font-normal text-[#8B95A6] no-underline tracking-[0.5px] transition-colors hover:text-[#F0F2F5] group flex items-center gap-1.5"
+                  className="relative px-4 py-2 text-[0.8rem] font-normal text-[var(--text-muted)] no-underline tracking-[0.5px] transition-colors hover:text-[var(--text-primary)] group flex items-center gap-1.5"
                 >
                   <span className="w-1 h-1 rounded-full bg-[#D48C46]/50 group-hover:bg-[#D48C46] transition-colors duration-200" />
                   Hadis Pilihan
@@ -54,7 +80,7 @@ function NavInner() {
           <li>
             <Link
               href="/dalil"
-              className="relative px-4 py-2 text-[0.8rem] font-normal text-[#8B95A6] no-underline tracking-[0.5px] transition-colors hover:text-[#F0F2F5] group flex items-center gap-1.5"
+              className="relative px-4 py-2 text-[0.8rem] font-normal text-[var(--text-muted)] no-underline tracking-[0.5px] transition-colors hover:text-[var(--text-primary)] group flex items-center gap-1.5"
             >
               <span className="w-1 h-1 rounded-full bg-[#D48C46]/50 group-hover:bg-[#D48C46] transition-colors duration-200" />
               Dalil
@@ -69,25 +95,30 @@ function NavInner() {
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              Cari Hadis
+              Cari Dalil
             </Link>
+          </li>
+          <li className="ml-1">
+            <ThemeToggle />
           </li>
         </ul>
 
-        {/* Mobile search button */}
-        <Link
-          href="?search=true"
-          scroll={false}
-          className="md:hidden flex items-center justify-center w-9 h-9 border border-[#D48C46]/30 text-[#D48C46] no-underline hover:bg-[#D48C46]/10 transition-colors"
-          aria-label="Cari Hadis"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </Link>
+        {/* Mobile actions */}
+        <div className="flex md:hidden items-center gap-2">
+          <ThemeToggle />
+          <Link
+            href="?search=true"
+            scroll={false}
+            className="flex items-center justify-center w-9 h-9 border border-[#D48C46]/30 text-[#D48C46] no-underline hover:bg-[#D48C46]/10 transition-colors"
+            aria-label="Cari Hadis"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </Link>
+        </div>
       </div>
 
-      {/* Bottom thin progress line decoration */}
       <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-[linear-gradient(90deg,transparent,#D48C46/20,transparent)]" />
     </nav>
   );

@@ -82,16 +82,6 @@ export default async function HomePage() {
 
   return (
     <div className="font-sans">
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scrollPulse {
-          0%, 100% { transform: scaleY(1); opacity: 1; }
-          50%       { transform: scaleY(0.5); opacity: 0.4; }
-        }
-      `}</style>
       <NavBar />
       <HeroSection />
       <StatsStrip />

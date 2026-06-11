@@ -2,13 +2,100 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ── Backgrounds ── */
+  --bg-primary: #F8F6F3;
+  --bg-secondary: #F0EDE8;
+  --bg-tertiary: #E8E4DE;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F0EDE8;
+  --bg-elevated: #FFFFFF;
+  --bg-hero: #F5F1EB;
+  --bg-nav: rgba(248, 246, 243, 0.9);
+  --bg-accent-10: rgba(212, 140, 70, 0.1);
+  --bg-accent-5: rgba(212, 140, 70, 0.05);
+  --bg-overlay: rgba(0, 0, 0, 0.4);
+
+  /* ── Text ── */
+  --text-primary: #1A1A2E;
+  --text-secondary: #6B4F3A;
+  --text-muted: #8B8BA3;
+  --text-accent: #D48C46;
+  --text-accent-light: #C97A34;
+  --text-accent-bright: #E8B07D;
+  --text-on-accent: #090C15;
+  --text-hero: #1A1A2E;
+  --text-hero-secondary: #6B4F3A;
+
+  /* ── Accent (fixed, same in both) ── */
+  --accent: #D48C46;
+  --accent-light: #E8B07D;
+  --accent-dim: #C97A34;
+  --accent-border: rgba(212, 140, 70, 0.25);
+  --accent-border-light: rgba(212, 140, 70, 0.12);
+  --accent-glow: rgba(212, 140, 70, 0.08);
+
+  /* ── Decorations ── */
+  --hero-ring: rgba(212, 140, 70, 0.1);
+  --hero-ring-light: rgba(212, 140, 70, 0.06);
+
+  /* ── Border ── */
+  --border: rgba(26, 26, 46, 0.1);
+  --border-hover: #D48C46;
+
+  /* ── Misc ── */
+  --scrollbar-bg: #E8E4DE;
+  --scrollbar-thumb: rgba(212, 140, 70, 0.3);
+  --selection-bg: rgba(212, 140, 70, 0.3);
+  --selection-text: #F0F2F5;
+  --ring-gradient: repeating-linear-gradient(45deg,transparent,transparent_36px,rgba(212,140,70,0.035)_36px,rgba(212,140,70,0.035)_37px),repeating-linear-gradient(-45deg,transparent,transparent_36px,rgba(212,140,70,0.035)_36px,rgba(212,140,70,0.035)_37px);
+  --glow-blob: radial-gradient(ellipse 80% 60% at 50% 30%,rgba(212,140,70,0.06)_0%,transparent_60%),radial-gradient(ellipse 60% 40% at 20% 80%,rgba(212,140,70,0.04)_0%,transparent_50%);
+}
+
+html.dark {
+  /* ── Backgrounds ── */
+  --bg-primary: #12172B;
+  --bg-secondary: #0E1324;
+  --bg-tertiary: #090C15;
+  --bg-card: #1A223D;
+  --bg-card-hover: #25304C;
+  --bg-elevated: #0E1324;
+  --bg-hero: #090C15;
+  --bg-nav: rgba(9, 12, 21, 0.85);
+  --bg-accent-10: rgba(212, 140, 70, 0.1);
+  --bg-accent-5: rgba(212, 140, 70, 0.05);
+  --bg-overlay: rgba(0, 0, 0, 0.6);
+
+  /* ── Text ── */
+  --text-primary: #F0F2F5;
+  --text-secondary: #D1A582;
+  --text-muted: #8B95A6;
+  --text-accent: #D48C46;
+  --text-accent-light: #C97A34;
+  --text-accent-bright: #E8B07D;
+  --text-on-accent: #090C15;
+  --text-hero: #F0F2F5;
+  --text-hero-secondary: #D1A582;
+
+  /* ── Decorations ── */
+  --hero-ring: rgba(212, 140, 70, 0.09);
+  --hero-ring-light: rgba(212, 140, 70, 0.05);
+
+  /* ── Border ── */
+  --border: rgba(212, 140, 70, 0.12);
+  --border-hover: #D48C46;
+
+  /* ── Misc ── */
+  --scrollbar-bg: #0A0F17;
+  --scrollbar-thumb: rgba(212, 140, 70, 0.2);
+  --selection-bg: rgba(212, 140, 70, 0.3);
+  --selection-text: #F0F2F5;
+  --ring-gradient: repeating-linear-gradient(45deg,transparent,transparent_36px,rgba(201,168,76,0.022)_36px,rgba(201,168,76,0.022)_37px),repeating-linear-gradient(-45deg,transparent,transparent_36px,rgba(201,168,76,0.022)_36px,rgba(201,168,76,0.022)_37px);
+  --glow-blob: radial-gradient(ellipse 80% 60% at 50% 30%,rgba(42,107,90,0.09)_0%,transparent_60%),radial-gradient(ellipse 60% 40% at 20% 80%,rgba(201,168,76,0.05)_0%,transparent_50%);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
   --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
   --font-cormorant: var(--font-cormorant);
@@ -16,48 +103,40 @@
   --font-montserrat: var(--font-montserrat);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 @utility font-montserrat {
   font-family: var(--font-montserrat), 'Montserrat', sans-serif;
 }
 
-/* Custom Global Text Selection */
 ::selection {
-  background-color: rgba(212, 140, 70, 0.3); /* #D48C46/30 */
-  color: #F0F2F5;
+  background-color: var(--selection-bg);
+  color: var(--selection-text);
 }
 
-/* Custom Global Scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(212, 140, 70, 0.2) #0A0F17;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
 }
 
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
-  background-color: #0A0F17;
+  background-color: var(--scrollbar-bg);
 }
 
 ::-webkit-scrollbar-track {
-  background: #0A0F17;
-  background-color: #0A0F17;
+  background: var(--scrollbar-bg);
+  background-color: var(--scrollbar-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(212, 140, 70, 0.2); /* #D48C46/20 */
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 

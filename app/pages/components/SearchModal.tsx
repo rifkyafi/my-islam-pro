@@ -49,7 +49,7 @@ function highlightMatch(text: string, query: string) {
   const parts = text.split(regex);
   return parts.map((part, i) =>
     regex.test(part)
-      ? <mark key={i} className="bg-[#D48C46]/30 text-[#E8B07D] rounded-sm px-0.5 not-italic">{part}</mark>
+      ? <mark key={i} className="bg-[#D48C46]/30 text-[var(--text-accent-bright)] rounded-sm px-0.5 not-italic">{part}</mark>
       : part
   );
 }
@@ -183,7 +183,7 @@ export function SearchModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeModal}
-            className="absolute inset-0 bg-[#090C15]/70 backdrop-blur-md"
+            className="absolute inset-0 bg-[var(--bg-overlay)] backdrop-blur-md"
           />
 
           {/* Modal Panel */}
@@ -192,7 +192,7 @@ export function SearchModal() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -10 }}
             transition={{ type: "spring", duration: 0.45, bounce: 0.2 }}
-            className="relative w-full max-w-2xl bg-[#1A223D] border border-[#D48C46]/25 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.5)] overflow-hidden z-[201]"
+            className="relative w-full max-w-2xl bg-[var(--bg-card)] border border-[var(--accent-border)] rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.5)] overflow-hidden z-[201]"
           >
             {/* Header */}
             <div className="flex items-center gap-2 px-5 pt-4 pb-1">
@@ -217,23 +217,23 @@ export function SearchModal() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari surah, ayat, atau kata kunci hadis…"
-                className="flex-1 bg-transparent text-[#F0F2F5] placeholder-[#8B95A6] focus:outline-none text-[0.95rem]"
+                className="flex-1 bg-transparent text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none text-[0.95rem]"
               />
               {query && (
                 <button onClick={() => { setQuery(''); setHadithResults([]); setQuranResults([]); setSearched(false); }}
-                  className="text-[#8B95A6] hover:text-[#F0F2F5] transition-colors p-1 text-sm">
+                  className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors p-1 text-sm">
                   ✕
                 </button>
               )}
               <button onClick={closeModal}
-                className="text-[0.7rem] tracking-widest uppercase text-[#8B95A6] hover:text-[#D48C46] border border-[#D48C46]/20 px-2.5 py-1 rounded-md transition-colors ml-1">
+                className="text-[0.7rem] tracking-widest uppercase text-[var(--text-muted)] hover:text-[#D48C46] border border-[var(--accent-border)] px-2.5 py-1 rounded-md transition-colors ml-1">
                 ESC
               </button>
             </div>
 
             {/* Filter Tabs — show when there are results */}
             {searched && totalCount > 0 && (
-              <div className="flex items-center gap-1 px-5 py-2 border-b border-[#D48C46]/10 bg-[#12172B]/40">
+              <div className="flex items-center gap-1 px-5 py-2 border-b border-[#D48C46]/10 bg-[var(--bg-primary)]/40">
                 {([
                   { key: 'all', label: `Semua (${totalCount})` },
                   ...(hasQuran ? [{ key: 'quran', label: `Al-Qur'an (${quranResults.length})` }] : []),
@@ -244,8 +244,8 @@ export function SearchModal() {
                     onClick={() => setActiveTab(tab.key)}
                     className={`text-[0.65rem] tracking-wider uppercase px-3 py-1 rounded-full transition-all font-medium ${
                       activeTab === tab.key
-                        ? 'bg-[#D48C46] text-[#090C15]'
-                        : 'text-[#8B95A6] hover:text-[#D48C46] border border-[#D48C46]/20 hover:border-[#D48C46]/40'
+                        ? 'bg-[#D48C46] text-[var(--text-on-accent)]'
+                        : 'text-[var(--text-muted)] hover:text-[#D48C46] border border-[var(--accent-border)] hover:border-[var(--accent)]'
                     }`}
                   >
                     {tab.label}
@@ -285,13 +285,13 @@ export function SearchModal() {
                             closeModal();
                             router.push(`/quran?surah=${r.nomor}${r.ayatNomor ? `#ayat-${r.ayatNomor}` : ''}`);
                           }}
-                          className="w-full text-left px-5 py-4 hover:bg-[#25304C] transition-colors"
+                          className="w-full text-left px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors"
                         >
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="text-[0.6rem] font-medium px-2 py-0.5 rounded-full tracking-wider uppercase bg-[#8A4A1C]/20 text-[#C97A34] border border-[#C97A34]/30">
+                            <span className="text-[0.6rem] font-medium px-2 py-0.5 rounded-full tracking-wider uppercase bg-[#8A4A1C]/20 text-[var(--text-accent-light)] border border-[#C97A34]/30">
                               {r.ayatNomor ? 'Ayat Qur\'an' : 'Surah Qur\'an'}
                             </span>
-                            <span className="text-[0.68rem] text-[#8B95A6]">
+                            <span className="text-[0.68rem] text-[var(--text-muted)]">
                               {r.ayatNomor 
                                 ? `QS. ${r.namaLatin} : ${r.ayatNomor}` 
                                 : `Surah ke-{r.nomor} · {r.jumlahAyat} Ayat · {r.tempatTurun}`
@@ -307,27 +307,27 @@ export function SearchModal() {
                           
                           {r.ayatNomor ? (
                             <div className="flex flex-col">
-                              <p className="font-neirizi text-xl text-[#E8B07D] text-right leading-relaxed mb-2 opacity-80">
+                              <p className="font-neirizi text-xl text-[var(--text-accent-bright)] text-right leading-relaxed mb-2 opacity-80">
                                 {r.ayatTeks}
                               </p>
-                              <p className="text-[0.83rem] text-[#F0F2F5]/80 italic leading-relaxed">
+                              <p className="text-[0.83rem] text-[var(--text-primary)]/80 italic leading-relaxed">
                               &quot;{highlightMatch(r.ayatTerjemahan || '', query)}&quot;
                               </p>
-                              <span className="text-[0.65rem] text-[#8B95A6] mt-1.5 font-medium">
+                              <span className="text-[0.65rem] text-[var(--text-muted)] mt-1.5 font-medium">
                                 Surah {r.namaLatin}
                               </span>
                             </div>
                           ) : (
                             <div className="flex items-center justify-between gap-4">
                               <div>
-                                <p className="text-[0.9rem] font-medium text-[#F0F2F5]">
+                                <p className="text-[0.9rem] font-medium text-[var(--text-primary)]">
                                   {highlightMatch(r.namaLatin, query)}
                                 </p>
-                                <p className="text-[0.75rem] text-[#8B95A6] italic mt-0.5">
+                                <p className="text-[0.75rem] text-[var(--text-muted)] italic mt-0.5">
                                   {highlightMatch(r.arti, query)}
                                 </p>
                               </div>
-                              <span className="font-neirizi text-2xl text-[#E8B07D]/60 shrink-0">{r.nama}</span>
+                              <span className="font-neirizi text-2xl text-[var(--text-accent-bright)]/60 shrink-0">{r.nama}</span>
                             </div>
                           )}
                         </button>
