@@ -86,7 +86,7 @@ function CopyMessageButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#D48C46]/5 hover:bg-[#D48C46]/20 border border-[#D48C46]/10 text-[var(--text-muted)] hover:text-[#D48C46] transition-all text-[0.7rem] uppercase tracking-wider"
+      className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[var(--accent)]/5 hover:bg-[var(--accent)]/20 border border-[var(--accent-border-light)] text-[var(--text-muted)] hover:text-[var(--text-accent)] transition-all text-[0.7rem] uppercase tracking-wider"
       title="Salin pesan"
     >
       {copied ? (
@@ -267,7 +267,7 @@ export function AIModal() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-[999] w-14 h-14 bg-[#D48C46] text-[var(--text-on-accent)] rounded-full shadow-[0_8px_32px_rgba(212,140,70,0.3)] flex items-center justify-center border border-[#D48C46]/20 group overflow-hidden"
+        className="fixed bottom-6 right-6 z-[999] w-14 h-14 bg-[var(--accent)] text-[var(--text-on-accent)] rounded-full shadow-[0_8px_32px_rgba(212,140,70,0.3)] flex items-center justify-center border border-[var(--accent)]/20 group overflow-hidden"
       >
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent,rgba(255,255,255,0.2),transparent)] translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
         <MessageCircle className="w-7 h-7" />
@@ -294,13 +294,13 @@ export function AIModal() {
               className="relative w-full max-w-[800px] h-[85vh] bg-[var(--bg-secondary)] border border-[var(--accent-border)] rounded-3xl shadow-[0_24px_64px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden"
             >
               {/* Modal Header */}
-              <div className="px-6 py-4 border-b border-[#D48C46]/10 flex items-center justify-between bg-[var(--bg-secondary)]/80 backdrop-blur-sm sticky top-0 z-10">
+              <div className="px-6 py-4 border-b border-[var(--accent-border-light)] flex items-center justify-between bg-[var(--bg-secondary)]/80 backdrop-blur-sm sticky top-0 z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#D48C46]/10 flex items-center justify-center border border-[#D48C46]/20">
-                    <Bot className="w-6 h-6 text-[#D48C46]" />
+                  <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center border border-[var(--accent-border)]">
+                    <Bot className="w-6 h-6 text-[var(--text-accent)]" />
                   </div>
                   <div>
-                    <h2 className="font-cormorant text-xl font-semibold text-[#D48C46] leading-none mb-1">
+                    <h2 className="font-cormorant text-xl font-semibold text-[var(--text-accent)] leading-none mb-1">
                       Ulama virtual
                     </h2>
                     <div className="flex items-center gap-1.5">
@@ -311,7 +311,7 @@ export function AIModal() {
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-lg hover:bg-[#D48C46]/10 text-[var(--text-muted)] hover:text-[#D48C46] transition-all"
+                  className="p-2 rounded-lg hover:bg-[var(--accent)]/10 text-[var(--text-muted)] hover:text-[var(--text-accent)] transition-all"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -324,12 +324,12 @@ export function AIModal() {
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="w-20 h-20 rounded-2xl bg-[#D48C46]/5 flex items-center justify-center mb-6 border border-[#D48C46]/10"
+                      className="w-20 h-20 rounded-2xl bg-[var(--accent)]/5 flex items-center justify-center mb-6 border border-[var(--accent-border-light)]"
                     >
-                      <Sparkles className="w-10 h-10 text-[#D48C46]/40" />
+                      <Sparkles className="w-10 h-10 text-[var(--text-accent)]/40" />
                     </motion.div>
-                    <h3 className="text-[#D48C46] font-cormorant text-2xl mb-2">Ahlan wa Sahlan</h3>
-                    <p className="text-[#8B95A6] text-sm max-w-[300px] leading-relaxed mb-8">
+                    <h3 className="text-[var(--text-accent)] font-cormorant text-2xl mb-2">Ahlan wa Sahlan</h3>
+                    <p className="text-[var(--text-muted)] text-sm max-w-[300px] leading-relaxed mb-8">
                       Tanyakan hal seputar Islam, adab, atau bimbingan ibadah.
                     </p>
                     <div className="flex flex-wrap justify-center gap-2">
@@ -337,7 +337,7 @@ export function AIModal() {
                         <button
                           key={q}
                           onClick={() => handleSend(q)}
-                          className="text-[0.75rem] px-4 py-2 rounded-full border border-[#D48C46]/10 bg-[#D48C46]/5 text-[var(--text-secondary)] hover:bg-[#D48C46]/15 hover:border-[var(--accent)] transition-all"
+                          className="text-[0.75rem] px-4 py-2 rounded-full border border-[var(--accent-border-light)] bg-[var(--accent)]/5 text-[var(--text-secondary)] hover:bg-[var(--accent)]/15 hover:border-[var(--accent-border)] transition-all"
                         >
                           {q}
                         </button>
@@ -355,8 +355,8 @@ export function AIModal() {
                       <div
                         className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${
                           msg.role === "user"
-                            ? "bg-[#D48C46] text-[var(--text-on-accent)]"
-                            : "bg-[var(--bg-elevated)] border border-[var(--accent-border)] text-[#D48C46]"
+                            ? "bg-[var(--accent)] text-[var(--text-on-accent)]"
+                            : "bg-[var(--bg-elevated)] border border-[var(--accent-border)] text-[var(--text-accent)]"
                         }`}
                       >
                         {msg.role === "user" ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
@@ -364,11 +364,11 @@ export function AIModal() {
                       <div
                         className={`group/msg max-w-[85%] md:max-w-[75%] px-5 py-4 rounded-2xl text-[0.95rem] leading-relaxed ${
                           msg.role === "user"
-                            ? "bg-[#D48C46]/10 border border-[var(--accent-border)] text-[var(--text-primary)] rounded-tr-none"
-                            : "bg-[var(--bg-elevated)] border border-[#D48C46]/10 text-[var(--text-primary)]/85 rounded-tl-none"
+                            ? "bg-[var(--accent)]/10 border border-[var(--accent-border)] text-[var(--text-primary)] rounded-tr-none"
+                            : "bg-[var(--bg-elevated)] border border-[var(--accent-border-light)] text-[var(--text-primary)]/85 rounded-tl-none"
                         }`}
                       >
-                        <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-[#090C15] prose-pre:border prose-pre:border-[#D48C46]/20">
+                        <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-[var(--bg-primary)] prose-pre:border prose-pre:border-[var(--accent-border-light)]">
                           <ReactMarkdown
                             components={{
                               a: ({ href, children }) => {
@@ -380,7 +380,7 @@ export function AIModal() {
                                         router.push(href);
                                       }
                                     }}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#D48C46]/10 border border-[var(--accent)] text-[#D48C46] rounded-md text-[0.75rem] no-underline hover:bg-[#D48C46]/20 transition-all mt-2 font-medium group/link cursor-pointer"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-[var(--accent)]/10 border border-[var(--accent-border)] text-[var(--text-accent)] rounded-md text-[0.75rem] no-underline hover:bg-[var(--accent)]/20 transition-all mt-2 font-medium group/link cursor-pointer"
                                   >
                                     {children}
                                     <svg className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -406,13 +406,13 @@ export function AIModal() {
                 )}
                 {isLoading && (
                   <div className="flex gap-4">
-                    <div className="w-9 h-9 rounded-xl bg-[var(--bg-elevated)] border border-[var(--accent-border)] text-[#D48C46] flex items-center justify-center shadow-lg">
+                    <div className="w-9 h-9 rounded-xl bg-[var(--bg-elevated)] border border-[var(--accent-border)] text-[var(--text-accent)] flex items-center justify-center shadow-lg">
                       <Bot className="w-5 h-5 animate-pulse" />
                     </div>
-                    <div className="px-5 py-4 rounded-2xl bg-[var(--bg-elevated)] border border-[#D48C46]/10 text-[var(--text-primary)]/85 rounded-tl-none animate-pulse flex gap-1 items-center">
-                      <span className="w-1 h-1 bg-[#D48C46] rounded-full animate-bounce" />
-                      <span className="w-1 h-1 bg-[#D48C46] rounded-full animate-bounce [animation-delay:0.2s]" />
-                      <span className="w-1 h-1 bg-[#D48C46] rounded-full animate-bounce [animation-delay:0.4s]" />
+                    <div className="px-5 py-4 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--accent-border-light)] text-[var(--text-primary)]/85 rounded-tl-none animate-pulse flex gap-1 items-center">
+                      <span className="w-1 h-1 bg-[var(--text-accent)] rounded-full animate-bounce" />
+                      <span className="w-1 h-1 bg-[var(--text-accent)] rounded-full animate-bounce [animation-delay:0.2s]" />
+                      <span className="w-1 h-1 bg-[var(--text-accent)] rounded-full animate-bounce [animation-delay:0.4s]" />
                     </div>
                   </div>
                 )}
@@ -420,12 +420,12 @@ export function AIModal() {
               </div>
 
               {/* Input Area */}
-              <div className="p-4 md:p-6 bg-[var(--bg-secondary)] border-t border-[#D48C46]/10">
+              <div className="p-4 md:p-6 bg-[var(--bg-secondary)] border-t border-[var(--accent-border-light)]">
                 <div className="flex gap-3 items-center max-w-[700px] mx-auto">
                   <button
                     onClick={() => setShowAlert(true)}
                     disabled={messages.length === 0}
-                    className="p-3 rounded-xl bg-[#D48C46]/5 border border-[#D48C46]/10 text-[var(--text-muted)] hover:text-[#FF4B4B] hover:bg-[#FF4B4B]/10 hover:border-[#FF4B4B]/20 transition-all disabled:opacity-20 disabled:cursor-not-allowed shrink-0"
+                    className="p-3 rounded-xl bg-[var(--accent)]/5 border border-[var(--accent-border-light)] text-[var(--text-muted)] hover:text-[#FF4B4B] hover:bg-[#FF4B4B]/10 hover:border-[#FF4B4B]/20 transition-all disabled:opacity-20 disabled:cursor-not-allowed shrink-0"
                     title="Hapus Percakapan"
                   >
                     <Trash2 className="w-5 h-5" />
@@ -437,12 +437,12 @@ export function AIModal() {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && handleSend()}
                       placeholder="Ketik pesan di sini..."
-                      className="w-full bg-[var(--bg-elevated)] border border-[var(--accent-border)] rounded-xl px-5 py-3.5 pr-14 text-[0.95rem] focus:outline-none focus:border-[#D48C46] focus:ring-1 focus:ring-[#D48C46]/30 transition-all placeholder:text-[var(--text-muted)]/40 text-[var(--text-primary)]"
+                      className="w-full bg-[var(--bg-elevated)] border border-[var(--accent-border)] rounded-xl px-5 py-3.5 pr-14 text-[0.95rem] focus:outline-none focus:border-[var(--text-accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all placeholder:text-[var(--text-muted)]/40 text-[var(--text-primary)]"
                     />
                     <button
                       onClick={() => handleSend()}
                       disabled={!input.trim() || isLoading}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-lg bg-[#D48C46] text-[var(--text-on-accent)] hover:bg-[#B87A3D] transition-all disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed shadow-lg"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-lg bg-[var(--accent)] text-[var(--text-on-accent)] hover:bg-[var(--accent-light)] transition-all disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed shadow-lg"
                     >
                       <Send className="w-4 h-4" />
                     </button>

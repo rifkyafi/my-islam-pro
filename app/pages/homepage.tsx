@@ -1,11 +1,9 @@
 import type { Metadata } from 'next'
-import { NavBar } from './components/NavBar'
 import { HeroSection } from './components/HeroSection'
 import { StatsStrip } from './components/StatsStrip'
 import { ThemesSection } from './components/ThemesSection'
 import { FeaturedHadith } from './components/FeaturedHadith'
 import { CtaBanner } from './components/CtaBanner'
-import { Footer } from './components/Footer'
 import { FeaturedHadithData } from './types'
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
@@ -82,13 +80,11 @@ export default async function HomePage() {
 
   return (
     <div className="font-sans">
-      <NavBar />
       <HeroSection />
       <StatsStrip />
       <ThemesSection />
       <FeaturedHadith data={featuredHadith} />
       <CtaBanner />
-      <Footer />
     </div>
   )
 }

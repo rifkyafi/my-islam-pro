@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { jakarta, neirizi, cormorant, montserrat } from "./pages/fonts";
 import { Suspense } from "react";
 import { ThemeProvider } from "./pages/components/ThemeProvider";
+import { NavBar } from "./pages/components/NavBar";
+import { Footer } from "./pages/components/Footer";
 import { SearchModal } from "./pages/components/SearchModal";
 import { AIModal } from "./pages/components/AIModal";
 import "./globals.css";
@@ -48,9 +50,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-full flex flex-col font-sans" cz-shortcut-listen="true">
         <ThemeProvider>
-          {children}
+          <NavBar />
+          <main className="flex-grow">
+            {children}
+          </main>
+          <Footer />
           <Suspense fallback={null}>
             <SearchModal />
           </Suspense>

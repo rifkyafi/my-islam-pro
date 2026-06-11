@@ -6,6 +6,13 @@ import { useThemeContext } from './ThemeProvider'
 import { SunIcon, MoonIcon } from './Icons'
 import { useEffect, useState } from 'react'
 
+const navItems = [
+  { href: '/', label: 'Beranda' },
+  { href: '/quran', label: 'Kitab' },
+  { href: '/hadis', label: 'Hadis Pilihan' },
+  { href: '/dalil', label: 'Dalil' },
+]
+
 function ThemeToggle() {
   const { theme, toggle } = useThemeContext()
   const [mounted, setMounted] = useState(false)
@@ -19,29 +26,53 @@ function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="flex items-center justify-center w-9 h-9 border border-[#D48C46]/30 text-[#D48C46] hover:bg-[#D48C46]/10 transition-all"
+      className="relative flex items-center justify-center w-9 h-9 rounded-full border border-[var(--accent)]/30 text-[var(--text-accent)] hover:bg-[var(--accent)]/10 active:bg-[var(--accent)]/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)]"
       aria-label={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+      aria-pressed={theme === 'dark'}
     >
-      <div className="transition-transform duration-300 hover:rotate-12">
-        {theme === 'dark' ? <SunIcon size={16} /> : <MoonIcon size={16} />}
+      <span className="sr-only">{theme === 'dark' ? 'Mode terang' : 'Mode gelap'}</span>
+      
+      <div className="absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out"
+           style={{
+             opacity: theme === 'dark' ? 0 : 1,
+             transform: theme === 'dark' ? 'rotate(-90deg) scale(0.5)' : 'rotate(0deg) scale(1)',
+           }}>
+        <MoonIcon size={18} />
       </div>
+      
+      <div className="absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out"
+           style={{
+             opacity: theme === 'dark' ? 1 : 0,
+             transform: theme === 'dark' ? 'rotate(0deg) scale(1)' : 'rotate(90deg) scale(0.5)',
+           }}>
+        <SunIcon size={18} />
+      </div>
+
+      <div 
+        className="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent)]/5 opacity-0 transition-opacity duration-300 pointer-events-none"
+        aria-hidden="true"
+      />
     </button>
   )
 }
 
 function NavInner() {
   const pathname = usePathname();
-  const isHome = pathname === '/';
+
+  const isActiveRoute = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname.startsWith(href + '/');
+  };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[var(--nav-bg)] backdrop-blur-[20px] border-b border-[#D48C46]/12">
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[var(--bg-nav)] backdrop-blur-[20px] border-b border-[var(--accent-border-light)]">
       <div className="max-w-[1280px] mx-auto px-5 md:px-10 h-16 flex items-center justify-between">
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 no-underline group">
           <div className="relative">
-            <span className="font-neirizi text-[1.6rem] text-[#D48C46] leading-none">ح</span>
-            <div className="absolute -bottom-0.5 left-0 right-0 h-px bg-[#D48C46]/40 group-hover:bg-[#D48C46] transition-colors duration-300" />
+            {/* <span className="font-neirizi text-[1.6rem] text-[var(--text-accent)] leading-none">ح</span> */}
+            <div className="absolute -bottom-0.5 left-0 right-0 h-px bg-[var(--accent)]/40 group-hover:bg-[var(--accent)] transition-colors duration-300" />
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-cormorant text-[0.95rem] font-semibold text-[var(--text-primary)] tracking-[0.5px]">
@@ -55,42 +86,36 @@ function NavInner() {
 
         {/* Nav links */}
         <ul className="hidden md:flex items-center list-none gap-1">
-          {isHome && (
-            <>
-              <li>
-                <a
-                  href="#tema"
-                  className="relative px-4 py-2 text-[0.8rem] font-normal text-[var(--text-muted)] no-underline tracking-[0.5px] transition-colors hover:text-[var(--text-primary)] group flex items-center gap-1.5"
+          {navItems.map((item) => {
+            const isActive = isActiveRoute(item.href);
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={`relative px-4 py-2 text-[0.8rem] font-medium no-underline tracking-[0.5px] transition-all group flex items-center ${
+                    isActive
+                      ? 'text-[var(--text-primary)]'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                  }`}
                 >
-                  <span className="w-1 h-1 rounded-full bg-[#D48C46]/50 group-hover:bg-[#D48C46] transition-colors duration-200" />
-                  Kitab
-                </a>
+                  {item.label}
+                  <span 
+                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-0 group-hover:w-full transition-all duration-300 ease-out ${
+                      isActive ? 'w-full bg-[var(--text-accent)]' : 'bg-[var(--accent)]'
+                    }`}
+                    style={{
+                      transformOrigin: isActive ? 'center' : 'left',
+                    }}
+                  />
+                </Link>
               </li>
-              <li>
-                <a
-                  href="#hadis-pilihan"
-                  className="relative px-4 py-2 text-[0.8rem] font-normal text-[var(--text-muted)] no-underline tracking-[0.5px] transition-colors hover:text-[var(--text-primary)] group flex items-center gap-1.5"
-                >
-                  <span className="w-1 h-1 rounded-full bg-[#D48C46]/50 group-hover:bg-[#D48C46] transition-colors duration-200" />
-                  Hadis Pilihan
-                </a>
-              </li>
-            </>
-          )}
-          <li>
-            <Link
-              href="/dalil"
-              className="relative px-4 py-2 text-[0.8rem] font-normal text-[var(--text-muted)] no-underline tracking-[0.5px] transition-colors hover:text-[var(--text-primary)] group flex items-center gap-1.5"
-            >
-              <span className="w-1 h-1 rounded-full bg-[#D48C46]/50 group-hover:bg-[#D48C46] transition-colors duration-200" />
-              Dalil
-            </Link>
-          </li>
+            )
+          })}
           <li className="ml-3">
             <Link
               href="?search=true"
               scroll={false}
-              className="inline-flex items-center gap-2 px-5 py-2 bg-[#D48C46]/10 border border-[#D48C46]/30 text-[#D48C46] text-[0.8rem] no-underline tracking-[0.5px] transition-all hover:bg-[#D48C46]/20 hover:border-[#D48C46]/60 hover:shadow-[0_0_16px_rgba(212,140,70,0.12)]"
+              className="inline-flex items-center gap-2 px-5 py-2 bg-[var(--accent)]/10 border border-[var(--accent-border)] text-[var(--text-accent)] text-[0.8rem] no-underline tracking-[0.5px] transition-all hover:bg-[var(--accent)]/20 hover:border-[var(--accent)] hover:shadow-[0_0_16px_rgba(212,140,70,0.12)]"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -109,7 +134,7 @@ function NavInner() {
           <Link
             href="?search=true"
             scroll={false}
-            className="flex items-center justify-center w-9 h-9 border border-[#D48C46]/30 text-[#D48C46] no-underline hover:bg-[#D48C46]/10 transition-colors"
+            className="flex items-center justify-center w-9 h-9 border border-[var(--accent)]/30 text-[var(--text-accent)] no-underline hover:bg-[var(--accent)]/10 transition-colors"
             aria-label="Cari Hadis"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +144,7 @@ function NavInner() {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-[linear-gradient(90deg,transparent,#D48C46/20,transparent)]" />
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-[linear-gradient(90deg,transparent,var(--accent)/20,transparent)]" />
     </nav>
   );
 }

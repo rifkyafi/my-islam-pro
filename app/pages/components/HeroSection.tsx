@@ -21,10 +21,7 @@ const fadeUpFast: Variants = {
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[var(--bg-hero)]
-      before:content-[''] before:absolute before:inset-0 before:pointer-events-none
-      before:bg-[var(--ring-gradient)]
-      bg-[var(--glow-blob)]">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[var(--bg-hero)] before:content-[''] before:absolute before:inset-0 before:pointer-events-none before:bg-[var(--ring-gradient)] bg-[var(--glow-blob)]">
 
       {/* Animated ornamental rings */}
       <motion.div

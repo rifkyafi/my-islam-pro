@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CardList } from '../pages/components/CardList';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,10 +25,12 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
   const activeDataIndex = activeKarakter ? activeKarakterIndex : activeRukunIndex;
   const activePrefix = activeKarakter ? 'target' : 'rukun';
 
-  // Initialize activeSubId if a Target tab is active and no sub tab is selected
-  if (activeData && activeSubId === null && activeData.items.length > 0) {
-    setActiveSubId(activeData.items[0].no);
-  }
+  // Use useEffect for side-effects instead of doing it during render
+  useEffect(() => {
+    if (activeData && activeSubId === null && activeData.items.length > 0) {
+      setActiveSubId(activeData.items[0].no);
+    }
+  }, [activeData, activeSubId]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeSubItem = activeData?.items.find((sub: any) => sub.no === activeSubId) || activeData?.items[0];
@@ -37,13 +39,13 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
     <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 relative">
       {/* Navigasi Tema (Sidebar Desktop / Scroll Horizontal Mobile) */}
       <aside className="w-full lg:w-[240px] shrink-0 relative z-40">
-        <div className="sticky top-0 lg:top-28 pt-4 lg:pt-0 -mx-5 px-5 lg:mx-0 lg:px-0 bg-[var(--bg-primary)]/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none lg:max-h-[calc(100vh-140px)] overflow-x-auto lg:overflow-y-auto lg:pr-4 scrollbar-none lg:scrollbar-thin lg:scrollbar-thumb-[#D48C46]/20 lg:scrollbar-track-transparent pb-4 border-b border-[#D48C46]/10 lg:border-b-0">
+        <div className="sticky top-0 lg:top-28 pt-4 lg:pt-0 -mx-5 px-5 lg:mx-0 lg:px-0 bg-[var(--bg-primary)]/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none lg:max-h-[calc(100vh-140px)] overflow-x-auto lg:overflow-y-auto lg:pr-4 scrollbar-none lg:scrollbar-thin lg:scrollbar-thumb-[var(--accent-border)] lg:scrollbar-track-transparent pb-4 border-b border-[var(--accent-border-light)] lg:border-b-0">
           
           <div className="flex flex-row lg:flex-col gap-6 lg:gap-0 w-max lg:w-auto items-center lg:items-stretch">
             
             {/* Bagian Daftar Tema */}
             <div className="flex flex-col">
-              <h4 className="hidden lg:block text-[#D48C46] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-6">
+              <h4 className="hidden lg:block text-[var(--text-accent)] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-6">
                 Daftar Tema
               </h4>
               <nav className="flex flex-row lg:flex-col gap-2 lg:gap-1.5">
@@ -55,7 +57,7 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
                       onClick={() => handleSetActiveId(dalil.id)}
                       className={`text-[0.8rem] lg:text-[0.85rem] text-left px-4 py-1.5 lg:px-3 lg:py-2 rounded-full lg:rounded-md transition-all whitespace-nowrap lg:truncate shadow-sm lg:shadow-none border flex-shrink-0 lg:flex-shrink ${
                         isActive 
-                          ? 'bg-[var(--bg-card-hover)] text-[var(--text-primary)] border-[var(--accent-border)]' 
+                          ? 'bg-[var(--accent)] text-[var(--text-on-accent)] border-[var(--accent)]' 
                           : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] bg-[var(--bg-card)] lg:bg-transparent border-[var(--accent-border)] lg:border-transparent'
                       }`}
                     >
@@ -67,12 +69,12 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
             </div>
 
             {/* Separator Mobile (Vertikal) / Desktop (Horizontal) */}
-            <div className="w-px h-8 bg-[#D48C46]/20 lg:hidden"></div>
-            <div className="hidden lg:block w-full h-px bg-[#D48C46]/10 my-8"></div>
+            <div className="w-px h-8 bg-[var(--accent)]/20 lg:hidden"></div>
+            <div className="hidden lg:block w-full h-px bg-[var(--accent-border-light)] my-8"></div>
 
             {/* Bagian Target & Karakter */}
             <div className="flex flex-col">
-              <h4 className="hidden lg:block text-[#D48C46] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-6">
+              <h4 className="hidden lg:block text-[var(--text-accent)] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-6">
                 29 Karakter Luhur
               </h4>
               <nav className="flex flex-row lg:flex-col gap-2 lg:gap-1.5">
@@ -85,7 +87,7 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
                       onClick={() => handleSetActiveId(targetId)}
                       className={`text-[0.8rem] lg:text-[0.85rem] text-left px-4 py-1.5 lg:px-3 lg:py-2 rounded-full lg:rounded-md transition-all whitespace-nowrap lg:truncate shadow-sm lg:shadow-none border flex-shrink-0 lg:flex-shrink ${
                         isActive 
-                          ? 'bg-[var(--bg-card-hover)] text-[var(--text-primary)] border-[var(--accent-border)]' 
+                          ? 'bg-[var(--accent)] text-[var(--text-on-accent)] border-[var(--accent)]' 
                           : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] bg-[var(--bg-card)] lg:bg-transparent border-[var(--accent-border)] lg:border-transparent'
                       }`}
                     >
@@ -99,10 +101,10 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
             {/* Bagian Rukun Iman dan Islam */}
             {rukunData && rukunData.length > 0 && (
               <>
-                <div className="w-px h-8 bg-[#D48C46]/20 lg:hidden"></div>
-                <div className="hidden lg:block w-full h-px bg-[#D48C46]/10 my-8"></div>
+                <div className="w-px h-8 bg-[var(--accent)]/20 lg:hidden"></div>
+                <div className="hidden lg:block w-full h-px bg-[var(--accent-border-light)] my-8"></div>
                 <div className="flex flex-col">
-                  <h4 className="hidden lg:block text-[#D48C46] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-6">
+                  <h4 className="hidden lg:block text-[var(--text-accent)] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-6">
                     Rukun Iman & Islam
                   </h4>
                   <nav className="flex flex-row lg:flex-col gap-2 lg:gap-1.5">
@@ -115,7 +117,7 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
                           onClick={() => handleSetActiveId(targetId)}
                           className={`text-[0.8rem] lg:text-[0.85rem] text-left px-4 py-1.5 lg:px-3 lg:py-2 rounded-full lg:rounded-md transition-all whitespace-nowrap lg:truncate shadow-sm lg:shadow-none border flex-shrink-0 lg:flex-shrink ${
                             isActive 
-                              ? 'bg-[var(--bg-card-hover)] text-[var(--text-primary)] border-[var(--accent-border)]' 
+                              ? 'bg-[var(--accent)] text-[var(--text-on-accent)] border-[var(--accent)]' 
                               : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] bg-[var(--bg-card)] lg:bg-transparent border-[var(--accent-border)] lg:border-transparent'
                           }`}
                         >
@@ -136,7 +138,7 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
       {/* Area Konten Utama */}
       <div className="flex-1 flex flex-col gap-8 min-h-[500px]">
         {activeTema && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div key={`tema-${activeTema.id}`} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <CardList 
               theme={{
                 slug: `dalil/${activeTema.id}`,
@@ -154,10 +156,10 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
         )}
 
         {activeData && activeSubItem && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div key={`data-${activeId}-${activeSubId}`} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Modern Responsive Sub-tabs */}
             <div className="mb-8 relative z-10">
-              <h3 className="text-[#D48C46] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-4 pl-1">
+              <h3 className="text-[var(--text-accent)] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-4 pl-1">
                 Pilih {activeKarakter ? 'Karakter Utama' : 'Bagian'}:
               </h3>
               <div className="flex overflow-x-auto scrollbar-none md:flex-wrap gap-2 pb-4 pt-2 -mx-5 px-5 md:mx-0 md:px-0 md:pb-0 md:pt-2">
@@ -170,23 +172,22 @@ export default function DalilClientView({ dalils, dalilKarakterData, rukunData =
                       onClick={() => setActiveSubId(sub.no)}
                       className={`group relative flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-xl text-[0.8rem] md:text-[0.85rem] transition-all duration-300 border overflow-hidden flex-shrink-0 ${
                         isActive
-                          ? 'border-[var(--accent)] shadow-[0_0_15px_rgba(201,168,76,0.15)] text-[var(--text-primary)] transform -translate-y-[1px]'
+                          ? 'border-[var(--accent)] shadow-[0_0_15px_rgba(212,140,70,0.15)] text-[var(--text-primary)] bg-[var(--accent)]/5 transform -translate-y-[1px]'
                           : 'border-[var(--accent-border-light)] bg-[var(--bg-card)]/50 text-[var(--text-muted)] hover:border-[var(--accent-border)] hover:bg-[var(--bg-card-hover)]/80 hover:text-[var(--text-primary)] hover:-translate-y-[1px]'
                       }`}
                     >
                       {/* Active Glow/Gradient */}
                       {isActive && (
                         <>
-                          <div className="absolute inset-0 bg-[var(--bg-card-hover)] z-0"></div>
-                          <div className="absolute top-0 left-0 w-1 h-full bg-[#D48C46] z-0"></div>
+                          <div className="absolute top-0 left-0 w-1 h-full bg-[var(--accent)] z-0"></div>
                         </>
                       )}
                       
                       {/* Number Circle */}
                       <div className={`relative z-10 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full text-[0.6rem] md:text-[0.65rem] font-bold transition-all duration-300 ${
                         isActive 
-                          ? 'bg-[#D48C46] text-[var(--text-on-accent)] shadow-[0_0_8px_rgba(201,168,76,0.5)]' 
-                          : 'bg-[var(--bg-primary)]/80 text-[#D48C46] group-hover:bg-[#D48C46]/20'
+                          ? 'bg-[var(--accent)] text-[var(--text-on-accent)] shadow-[0_0_8px_rgba(212,140,70,0.5)]' 
+                          : 'bg-[var(--bg-primary)]/80 text-[var(--text-accent)] group-hover:bg-[var(--accent)]/20'
                       }`}>
                         {sub.no}
                       </div>

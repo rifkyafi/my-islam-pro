@@ -26,8 +26,8 @@ export function CopyButton({ textToCopy, className = "" }: CopyButtonProps) {
       onClick={handleCopy}
       className={`inline-flex items-center justify-center p-2 rounded-md transition-all duration-200 
         ${copied 
-          ? 'bg-[#C97A34]/20 text-[#C97A34] border border-[#C97A34]/30' 
-          : 'bg-[#D48C46]/10 text-[#D48C46] border border-[#D48C46]/20 hover:bg-[#D48C46]/20 hover:border-[#D48C46]/40'} 
+          ? 'bg-[var(--accent-dim)]/20 text-[var(--text-accent-dim)] border border-[var(--accent-border)]' 
+          : 'bg-[var(--accent)]/10 text-[var(--text-accent)] border border-[var(--accent-border-light)] hover:bg-[var(--accent)]/20 hover:border-[var(--accent-border)]'} 
         ${className}`}
       title={copied ? "Tersalin!" : "Salin Hadis"}
     >

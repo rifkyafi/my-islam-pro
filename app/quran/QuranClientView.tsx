@@ -191,10 +191,10 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
       `}</style>
       {/* Sidebar: Surah List */}
       <aside className="w-full lg:w-[280px] shrink-0 relative z-40">
-        <div className="sticky top-0 lg:top-28 pt-4 lg:pt-0 -mx-5 px-5 lg:mx-0 lg:px-0 bg-[var(--bg-primary)]/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none lg:max-h-[calc(100vh-140px)] overflow-x-auto lg:overflow-y-auto lg:pr-4 scrollbar-none lg:scrollbar-thin lg:scrollbar-thumb-[#D48C46]/20 lg:scrollbar-track-transparent pb-4 border-b border-[#D48C46]/10 lg:border-b-0">
+        <div className="sticky top-0 lg:top-28 pt-4 lg:pt-0 -mx-5 px-5 lg:mx-0 lg:px-0 bg-[var(--bg-primary)]/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none lg:max-h-[calc(100vh-140px)] overflow-x-auto lg:overflow-y-auto lg:pr-4 scrollbar-none lg:scrollbar-thin lg:scrollbar-thumb-[var(--accent-border)] lg:scrollbar-track-transparent pb-4 border-b border-[var(--accent-border-light)] lg:border-b-0">
           
           <div className="flex flex-row lg:flex-col gap-2 w-max lg:w-auto">
-            <h4 className="hidden lg:block text-[#D48C46] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-6">
+            <h4 className="hidden lg:block text-[var(--text-accent)] font-semibold text-[0.65rem] tracking-[3px] uppercase mb-6">
               Daftar Surah
             </h4>
             <nav className="flex flex-row lg:flex-col gap-2 lg:gap-1.5">
@@ -215,7 +215,7 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
                         : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] bg-[var(--bg-card)] lg:bg-transparent border-[var(--accent-border)] lg:border-transparent'
                     }`}
                   >
-                    <span className={`flex items-center justify-center w-6 h-6 rounded-full text-[0.6rem] font-bold ${isActive ? 'bg-[#D48C46] text-[var(--text-on-accent)]' : 'bg-[var(--bg-primary)] text-[#D48C46] border border-[var(--accent-border)]'}`}>
+                    <span className={`flex items-center justify-center w-6 h-6 rounded-full text-[0.6rem] font-bold ${isActive ? 'bg-[var(--accent)] text-[var(--text-on-accent)]' : 'bg-[var(--bg-primary)] text-[var(--text-accent)] border border-[var(--accent-border)]'}`}>
                       {surah.nomor}
                     </span>
                     <div className="flex flex-col leading-tight">
@@ -236,8 +236,8 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-2 border-[#D48C46]/20 border-t-[#D48C46] rounded-full animate-spin" />
-              <p className="font-cormorant text-xl text-[#D48C46]">Memuat Ayat...</p>
+              <div className="w-12 h-12 border-2 border-[var(--accent)]/20 border-t-[var(--accent)] rounded-full animate-spin" />
+              <p className="font-cormorant text-xl text-[var(--text-accent)]">Memuat Ayat...</p>
             </div>
           </div>
         ) : activeSurah && (

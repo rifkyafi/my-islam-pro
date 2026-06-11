@@ -196,18 +196,18 @@ export function SearchModal() {
           >
             {/* Header */}
             <div className="flex items-center gap-2 px-5 pt-4 pb-1">
-              <span className="text-[0.6rem] tracking-[3px] uppercase text-[#D48C46]/60 font-semibold">Cari Qur&apos;an &amp; Hadits</span>
+              <span className="text-[0.6rem] tracking-[3px] uppercase text-[var(--accent)]/60 font-semibold">Cari Qur&apos;an &amp; Hadits</span>
             </div>
 
             {/* Search Input */}
-            <div className="flex items-center gap-3 px-5 py-3 border-b border-[#D48C46]/10">
+            <div className="flex items-center gap-3 px-5 py-3 border-b border-[var(--accent)]/10">
               {loading ? (
-                <svg className="w-4 h-4 text-[#D48C46] shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-[var(--accent)] shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
               ) : (
-                <svg className="w-5 h-5 text-[#8B95A6] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-[var(--text-muted)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               )}
@@ -226,14 +226,14 @@ export function SearchModal() {
                 </button>
               )}
               <button onClick={closeModal}
-                className="text-[0.7rem] tracking-widest uppercase text-[var(--text-muted)] hover:text-[#D48C46] border border-[var(--accent-border)] px-2.5 py-1 rounded-md transition-colors ml-1">
+                className="text-[0.7rem] tracking-widest uppercase text-[var(--text-muted)] hover:text-[var(--accent)] border border-[var(--accent-border)] px-2.5 py-1 rounded-md transition-colors ml-1">
                 ESC
               </button>
             </div>
 
             {/* Filter Tabs — show when there are results */}
             {searched && totalCount > 0 && (
-              <div className="flex items-center gap-1 px-5 py-2 border-b border-[#D48C46]/10 bg-[var(--bg-primary)]/40">
+              <div className="flex items-center gap-1 px-5 py-2 border-b border-[var(--accent)]/10 bg-[var(--bg-primary)]/40">
                 {([
                   { key: 'all', label: `Semua (${totalCount})` },
                   ...(hasQuran ? [{ key: 'quran', label: `Al-Qur'an (${quranResults.length})` }] : []),
@@ -244,8 +244,8 @@ export function SearchModal() {
                     onClick={() => setActiveTab(tab.key)}
                     className={`text-[0.65rem] tracking-wider uppercase px-3 py-1 rounded-full transition-all font-medium ${
                       activeTab === tab.key
-                        ? 'bg-[#D48C46] text-[var(--text-on-accent)]'
-                        : 'text-[var(--text-muted)] hover:text-[#D48C46] border border-[var(--accent-border)] hover:border-[var(--accent)]'
+                        ? 'bg-[var(--accent)] text-[var(--text-on-accent)]'
+                        : 'text-[var(--text-muted)] hover:text-[var(--accent)] border border-[var(--accent-border)] hover:border-[var(--accent)]'
                     }`}
                   >
                     {tab.label}
@@ -256,12 +256,12 @@ export function SearchModal() {
 
             {/* Index status bar */}
             {isIndexing && (
-              <div className="flex items-center gap-2 px-5 py-2 bg-[#D48C46]/5 border-b border-[#D48C46]/10">
-                <svg className="w-3 h-3 text-[#D48C46] animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 px-5 py-2 bg-[var(--accent)]/5 border-b border-[var(--accent)]/10">
+                <svg className="w-3 h-3 text-[var(--accent)] animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
-                <p className="text-[0.68rem] text-[#D48C46]/80">Mengindeks hadis… hasil akan muncul otomatis, mohon tunggu</p>
+                <p className="text-[0.68rem] text-[var(--accent)]/80">Mengindeks hadis… hasil akan muncul otomatis, mohon tunggu</p>
               </div>
             )}
 
@@ -270,7 +270,7 @@ export function SearchModal() {
 
               {/* Results list */}
               {filteredResults.length > 0 && (
-                <ul className="divide-y divide-[#D48C46]/8">
+                <ul className="divide-y divide-[var(--accent)]/8">
                   {filteredResults.map((r, i) => (
                     <motion.li
                       key={r.type === 'quran' ? `quran-${r.nomor}` : `hadith-${r.bookId}-${r.number}`}
@@ -288,16 +288,16 @@ export function SearchModal() {
                           className="w-full text-left px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors"
                         >
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="text-[0.6rem] font-medium px-2 py-0.5 rounded-full tracking-wider uppercase bg-[#8A4A1C]/20 text-[var(--text-accent-light)] border border-[#C97A34]/30">
+                            <span className="text-[0.6rem] font-medium px-2 py-0.5 rounded-full tracking-wider uppercase bg-[var(--accent-dim)]/20 text-[var(--text-accent-light)] border border-[var(--accent-dim)]/30">
                               {r.ayatNomor ? 'Ayat Qur\'an' : 'Surah Qur\'an'}
                             </span>
                             <span className="text-[0.68rem] text-[var(--text-muted)]">
                               {r.ayatNomor 
                                 ? `QS. ${r.namaLatin} : ${r.ayatNomor}` 
-                                : `Surah ke-{r.nomor} · {r.jumlahAyat} Ayat · {r.tempatTurun}`
+                                : `Surah ke-${r.nomor} · ${r.jumlahAyat} Ayat · ${r.tempatTurun}`
                               }
                             </span>
-                            <span className="ml-auto text-[0.6rem] text-[#C97A34]/70 flex items-center gap-1">
+                            <span className="ml-auto text-[0.6rem] text-[var(--accent-dim)]/70 flex items-center gap-1">
                               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                               </svg>
@@ -339,16 +339,16 @@ export function SearchModal() {
                             const page = Math.ceil(position / 50);
                             window.location.href = `/hadis?book=${r.bookId}&page=${page}#hadith-${r.number}`;
                           }}
-                          className="w-full text-left px-5 py-4 hover:bg-[#25304C] transition-colors"
+                          className="w-full text-left px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors"
                         >
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="text-[0.6rem] font-medium px-2 py-0.5 rounded-full tracking-wider uppercase bg-[#D48C46]/10 text-[#D48C46] border border-[#D48C46]/25">
+                            <span className="text-[0.6rem] font-medium px-2 py-0.5 rounded-full tracking-wider uppercase bg-[var(--accent)]/10 text-[var(--text-accent)] border border-[var(--accent)]/25">
                               Hadits
                             </span>
-                            <span className="text-[0.68rem] text-[#8B95A6]">
+                            <span className="text-[0.68rem] text-[var(--text-muted)]">
                               HR. {r.bookName} No. {r.number}
                             </span>
-                            <span className="ml-auto text-[0.6rem] text-[#C97A34]/70 flex items-center gap-1">
+                            <span className="ml-auto text-[0.6rem] text-[var(--accent-dim)]/70 flex items-center gap-1">
                               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                               </svg>
@@ -356,11 +356,11 @@ export function SearchModal() {
                             </span>
                           </div>
                           {r.arab && (
-                            <p className="font-neirizi text-lg text-[#E8B07D] text-right leading-relaxed mb-2 opacity-80">
+                            <p className="font-neirizi text-lg text-[var(--text-accent-bright)] text-right leading-relaxed mb-2 opacity-80">
                               {r.arab.length > 110 ? r.arab.slice(0, 110) + '…' : r.arab}
                             </p>
                           )}
-                          <p className="text-[0.83rem] text-[#F0F2F5]/80 italic leading-relaxed line-clamp-2">
+                          <p className="text-[0.83rem] text-[var(--text-primary)]/80 italic leading-relaxed line-clamp-2">
                             &quot;{highlightMatch(r.id, query)}&quot;
                           </p>
                         </button>
@@ -373,21 +373,21 @@ export function SearchModal() {
               {/* Indexing, no results yet */}
               {!loading && searched && filteredResults.length === 0 && isIndexing && (
                 <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                  <svg className="w-8 h-8 text-[#D48C46]/40 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 text-[var(--accent)]/40 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  <p className="text-[#8B95A6] text-sm">Sedang menyiapkan indeks hadis…</p>
-                  <p className="text-[#8B95A6]/50 text-xs">Hasil akan muncul otomatis dalam beberapa detik</p>
+                  <p className="text-[var(--text-muted)] text-sm">Sedang menyiapkan indeks hadis…</p>
+                  <p className="text-[var(--text-muted)]/50 text-xs">Hasil akan muncul otomatis dalam beberapa detik</p>
                 </div>
               )}
 
               {/* No results */}
               {!loading && searched && filteredResults.length === 0 && !isIndexing && (
                 <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                  <span className="font-neirizi text-4xl text-[#D48C46]/30">بحث</span>
-                  <p className="text-[#8B95A6] text-sm">Tidak ditemukan hasil untuk <span className="text-[#F0F2F5]">&quot;{query}&quot;</span></p>
-                  <p className="text-[#8B95A6]/60 text-xs">Coba nama surah (al-baqarah), nomor surah (2), atau kata kunci hadis</p>
+                  <span className="font-neirizi text-4xl text-[var(--accent)]/30">بحث</span>
+                  <p className="text-[var(--text-muted)] text-sm">Tidak ditemukan hasil untuk <span className="text-[var(--text-primary)]">&quot;{query}&quot;</span></p>
+                  <p className="text-[var(--text-muted)]/60 text-xs">Coba nama surah (al-baqarah), nomor surah (2), atau kata kunci hadis</p>
                 </div>
               )}
 
@@ -395,18 +395,18 @@ export function SearchModal() {
               {!loading && !searched && query.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-10 gap-3">
                   <div className="flex items-center gap-4">
-                    <span className="font-neirizi text-4xl text-[#D48C46]/20">القرآن</span>
-                    <span className="text-[#D48C46]/15 text-2xl">·</span>
-                    <span className="font-neirizi text-4xl text-[#D48C46]/20">حديث</span>
+                    <span className="font-neirizi text-4xl text-[var(--accent)]/20">القرآن</span>
+                    <span className="text-[var(--accent)]/15 text-2xl">·</span>
+                    <span className="font-neirizi text-4xl text-[var(--accent)]/20">حديث</span>
                   </div>
-                  <p className="text-[#8B95A6] text-sm">Ketik untuk mulai mencari</p>
-                  <p className="text-[#8B95A6]/40 text-xs">Contoh: al-baqarah, shalat, jujur, sabar, nomor surah (2, 36…)</p>
+                  <p className="text-[var(--text-muted)] text-sm">Ketik untuk mulai mencari</p>
+                  <p className="text-[var(--text-muted)]/40 text-xs">Contoh: al-baqarah, shalat, jujur, sabar, nomor surah (2, 36…)</p>
                 </div>
               )}
 
               {/* Loading */}
               {loading && (
-                <div className="flex items-center justify-center gap-2 py-10 text-[#8B95A6] text-sm">
+                <div className="flex items-center justify-center gap-2 py-10 text-[var(--text-muted)] text-sm">
                   <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
@@ -418,12 +418,12 @@ export function SearchModal() {
 
             {/* Footer */}
             {filteredResults.length > 0 && !loading && (
-              <div className="px-5 py-2.5 border-t border-[#D48C46]/10 flex items-center justify-between">
-                <span className="text-[0.68rem] text-[#8B95A6]">
+              <div className="px-5 py-2.5 border-t border-[var(--accent)]/10 flex items-center justify-between">
+                <span className="text-[0.68rem] text-[var(--text-muted)]">
                   {filteredResults.length} hasil
-                  {indexed && <span className="ml-1 text-[#C97A34]/70">· index penuh</span>}
+                  {indexed && <span className="ml-1 text-[var(--accent-dim)]/70">· index penuh</span>}
                 </span>
-                <span className="text-[0.65rem] text-[#8B95A6]/40">Klik untuk buka halaman</span>
+                <span className="text-[0.65rem] text-[var(--text-muted)]/40">Klik untuk buka halaman</span>
               </div>
             )}
           </motion.div>
