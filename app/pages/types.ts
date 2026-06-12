@@ -19,6 +19,14 @@ export interface LifeTheme {
   dalils?: DalilEntry[]
 }
 
+export interface FeaturedQuranData {
+  arabic: string
+  translation: string
+  surahName: string
+  surahNumber: number
+  verseNumber: number
+}
+
 export interface FeaturedHadithData {
   arabic: string
   translation: string

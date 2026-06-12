@@ -111,71 +111,45 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
     setTimeout(() => fetchVerses(activeSurahNo), 0);
   }, [activeSurahNo, fetchVerses]);
 
-  // Auto-expand and scroll to target ayat
+  // Scroll ke ayat target setelah data surah benar-benar siap
   useEffect(() => {
-    if (loading || verses.length === 0 || !targetAyat || autoExpanded) return;
+    if (loading || verses.length === 0) return;
 
-    startTransition(() => setAutoExpanded(true));
+    const targetSurah = Number(searchParams.get('surah'));
+    if (targetSurah && targetSurah !== activeSurahNo) return;
 
-    const el = document.getElementById(`ayat-${targetAyat}`);
-    if (el) {
-      el.classList.add('animate-target-pulse');
-      setTimeout(() => {
-        el.classList.remove('animate-target-pulse');
-      }, 4000);
+    const targetAyat = searchParams.get('ayat') ||
+      (window.location.hash.startsWith('#ayat-')
+        ? window.location.hash.replace('#ayat-', '')
+        : null);
+    if (!targetAyat) return;
+
+    let cancelled = false;
+
+    const doScroll = () => {
+      if (cancelled) return;
+      const el = document.getElementById(`ayat-${targetAyat}`);
+      if (!el) return;
 
       const offset = 140;
       const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
       window.scrollTo({ top, behavior: "smooth" });
-    }
-  }, [loading, verses, targetAyat, autoExpanded]);
 
-  // Handle hash-based scrolling (general case)
-  useEffect(() => {
-    if (loading || verses.length === 0) return;
-
-    const scrollToAnchor = () => {
-      const hash = window.location.hash;
-      if (hash && hash.startsWith('#ayat-')) {
-        const targetId = hash.replace('#', '');
-        const element = document.getElementById(targetId);
-        
-        if (element) {
-          const offset = 140;
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - offset;
-          
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: "smooth"
-          });
-          
-          element.classList.add('animate-target-pulse');
-          setTimeout(() => {
-            element.classList.remove('animate-target-pulse');
-          }, 4000);
-          
-          return true;
-        }
-      }
-      return false;
+      el.classList.remove('animate-target-pulse');
+      void el.offsetWidth;
+      el.classList.add('animate-target-pulse');
+      setTimeout(() => el.classList.remove('animate-target-pulse'), 4000);
     };
 
-    let attempts = 0;
-    const interval = setInterval(() => {
-      attempts++;
-      const success = scrollToAnchor();
-      if (success || attempts > 15) {
-        clearInterval(interval);
-      }
-    }, 200);
+    doScroll();
+    const t1 = setTimeout(doScroll, 50);
+    const t2 = setTimeout(doScroll, 200);
+    const t3 = setTimeout(doScroll, 500);
+    const t4 = setTimeout(doScroll, 1200);
 
-    window.addEventListener('hashchange', scrollToAnchor);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('hashchange', scrollToAnchor);
-    };
-  }, [loading, verses]);
+    window.addEventListener('hashchange', doScroll);
+    return () => { cancelled = true; clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); window.removeEventListener('hashchange', doScroll); };
+  }, [loading, verses, searchParams, activeSurahNo]);
 
   const activeSurah = surahs.find(s => s.nomor === activeSurahNo);
 
@@ -248,6 +222,7 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
           <div key={cardListKey} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <CardList 
               collapseAll={true}
+              expanded={!!searchParams.get('ayat')}
               theme={{
                 slug: `quran/${activeSurah.nomor}`,
                 title: `${activeSurah.nama_latin} (${activeSurah.nama})`,

@@ -282,8 +282,7 @@ export function SearchModal() {
                         /* ── Quran Result ── */
                         <button
                           onClick={() => {
-                            closeModal();
-                            router.push(`/quran?surah=${r.nomor}${r.ayatNomor ? `#ayat-${r.ayatNomor}` : ''}`);
+                            router.push(`/quran?surah=${r.nomor}${r.ayatNomor ? `&ayat=${r.ayatNomor}` : ''}`);
                           }}
                           className="w-full text-left px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors"
                         >
@@ -335,9 +334,10 @@ export function SearchModal() {
                         /* ── Hadith Result ── */
                         <button
                           onClick={() => {
+                            closeModal();
                             const position = r.rangeStart ?? r.number;
                             const page = Math.ceil(position / 50);
-                            router.push(`/hadis?book=${r.bookId}&page=${page}#hadith-${r.number}`);
+                            router.push(`/hadis?book=${r.bookId}&page=${page}&hadith=${r.number}#hadith-${r.number}`);
                           }}
                           className="w-full text-left px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors"
                         >

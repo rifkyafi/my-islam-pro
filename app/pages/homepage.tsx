@@ -3,7 +3,7 @@ import { StatsStrip } from './components/StatsStrip'
 import { ThemesSection } from './components/ThemesSection'
 import { FeaturedHadith } from './components/FeaturedHadith'
 import { CtaBanner } from './components/CtaBanner'
-import { FeaturedHadithData } from './types'
+import { FeaturedHadithData, FeaturedQuranData } from './types'
 
 async function getFeaturedHadith(): Promise<FeaturedHadithData | null> {
   try {
@@ -61,16 +61,53 @@ async function getFeaturedHadith(): Promise<FeaturedHadithData | null> {
   }
 }
 
+async function getFeaturedQuran(): Promise<FeaturedQuranData | null> {
+  try {
+    const today = new Date();
+    const daysSinceEpoch = Math.floor(today.getTime() / 86400000);
+
+    // Pilih surah secara pseudorandom (1-114)
+    const surahNumber = (daysSinceEpoch * 47) % 114 + 1;
+
+    const apiUrl = process.env.NEXT_PUBLIC_QURAN_API_URL || 'https://equran.id/api/v2';
+    const response = await fetch(`${apiUrl}/surat/${surahNumber}`, {
+      next: { revalidate: 86400 }
+    });
+
+    if (!response.ok) return null;
+
+    const json = await response.json();
+    const data = json.data;
+
+    if (!data || !data.ayat || data.ayat.length === 0) return null;
+
+    const verseIndex = (daysSinceEpoch * 137) % data.ayat.length;
+    const verse = data.ayat[verseIndex];
+
+    return {
+      arabic: verse.teksArab,
+      translation: verse.teksIndonesia,
+      surahName: data.namaLatin,
+      surahNumber: data.nomor,
+      verseNumber: verse.nomorAyat,
+    };
+  } catch (error) {
+    console.error("Error fetching featured quran:", error);
+    return null;
+  }
+}
+
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default async function HomePage() {
   const featuredHadith = await getFeaturedHadith();
+  const featuredQuran = await getFeaturedQuran();
 
   return (
     <div className="font-sans">
       <HeroSection />
       <StatsStrip />
       <ThemesSection />
-      <FeaturedHadith data={featuredHadith} />
+      <FeaturedHadith hadithData={featuredHadith} quranData={featuredQuran} />
       <CtaBanner />
     </div>
   )

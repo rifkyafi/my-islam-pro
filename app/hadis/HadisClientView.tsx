@@ -69,16 +69,25 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
       });
   }, [activeBookId, activePage]);
 
-  // Hash scroll detection with staggered retries
+  // Scroll to target hadith setelah data buku yang benar siap
   useEffect(() => {
+    const targetBook = searchParams.get('book');
+    if (targetBook && targetBook !== activeBookId) return;
+    if (!bookData || loading) return;
+
     let cancelled = false;
     const timers: ReturnType<typeof setTimeout>[] = [];
 
     const scrollToAnchor = () => {
       const hash = window.location.hash;
-      if (!hash || !hash.startsWith('#hadith-')) return false;
+      const targetId = hash?.startsWith('#hadith-')
+        ? hash.replace('#', '')
+        : searchParams.get('hadith')
+          ? `hadith-${searchParams.get('hadith')}`
+          : null;
+      if (!targetId) return false;
 
-      const element = document.getElementById(hash.replace('#', ''));
+      const element = document.getElementById(targetId);
       if (!element) return false;
 
       const offset = 140;
@@ -94,22 +103,19 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
       return true;
     };
 
-    if (!scrollToAnchor()) {
-      const delays = [100, 300, 600, 1000, 2000, 4000];
-      for (const delay of delays) {
-        timers.push(setTimeout(() => {
-          if (!cancelled) scrollToAnchor();
-        }, delay));
-      }
-    }
+    scrollToAnchor();
+    const t1 = setTimeout(scrollToAnchor, 50);
+    const t2 = setTimeout(scrollToAnchor, 200);
+    const t3 = setTimeout(scrollToAnchor, 500);
+    const t4 = setTimeout(scrollToAnchor, 1200);
 
     window.addEventListener('hashchange', scrollToAnchor);
     return () => {
       cancelled = true;
-      timers.forEach(t => clearTimeout(t));
+      [t1, t2, t3, t4].forEach(t => clearTimeout(t));
       window.removeEventListener('hashchange', scrollToAnchor);
     };
-  }, [activeBookId, activePage, bookData]);
+  }, [activeBookId, activePage, bookData, loading, searchParams]);
 
   const activeBookMeta = books.find(b => b.id === activeBookId);
 

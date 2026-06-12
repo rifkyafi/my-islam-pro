@@ -121,10 +121,10 @@ function DalilItem({ arabic, translation, sourceInfo, type, textToCopy, audioUrl
   )
 }
 
-export function CardList({ theme, collapseAll = false }: { theme: LifeTheme, collapseAll?: boolean }) {
+export function CardList({ theme, collapseAll = false, expanded: controlledExpanded }: { theme: LifeTheme, collapseAll?: boolean, expanded?: boolean }) {
   const [expanded, setExpanded] = useState(false)
 
-  // Auto-expand if URL hash points to an item inside this card list
+  // Auto-expand if URL has hash, or if expanded prop is passed
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash;
@@ -136,6 +136,11 @@ export function CardList({ theme, collapseAll = false }: { theme: LifeTheme, col
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
+
+  // Controlled expansion from parent
+  useEffect(() => {
+    if (controlledExpanded) setExpanded(true);
+  }, [controlledExpanded]);
 
   const firstDalil = theme.dalils?.[0]
   const restDalils = theme.dalils?.slice(1) ?? []

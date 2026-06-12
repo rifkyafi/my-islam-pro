@@ -1,4 +1,4 @@
-import { LifeTheme, FeaturedHadithData } from './types'
+import { LifeTheme, FeaturedHadithData, FeaturedQuranData } from './types'
 
 export const LIFE_THEMES: LifeTheme[] = [
   { slug: 'ibadah', title: 'Ibadah', arabic: 'العبادة', description: 'Shalat, puasa, zakat, dan amalan wajib lainnya', hadithCount: 124 },
@@ -14,6 +14,14 @@ export const LIFE_THEMES: LifeTheme[] = [
   { slug: 'cinta', title: 'Cinta', arabic: 'الحب', description: 'Kasih sayang, kelembutan, dan cinta sesama', hadithCount: 58 },
   { slug: 'kematian', title: 'Kematian', arabic: 'الموت', description: 'Persiapan menuju kehidupan abadi', hadithCount: 56 },
 ]
+
+export const FEATURED_QURAN: FeaturedQuranData = {
+  arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا',
+  translation: 'Sesungguhnya bersama kesulitan ada kemudahan.',
+  surahName: 'Al-Insyirah',
+  surahNumber: 94,
+  verseNumber: 6,
+}
 
 export const FEATURED_HADITH: FeaturedHadithData = {
   arabic: 'مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا، سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ',
