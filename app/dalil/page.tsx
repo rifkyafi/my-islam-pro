@@ -65,7 +65,7 @@ const themesData = [
     id: 'lingkungan',
     title: 'Lingkungan & Alam',
     desc: 'Menjaga bumi, tanaman, dan hewan',
-    book: 'malik', range: '10-12',
+    book: 'malik', range: '10-12',  
     quranRefs: [{ surah: 7, ayat: 56 }, { surah: 55, ayat: 7 }],
     keywords: ['Tanaman', 'Hewan', 'Bumi'],
   },
@@ -371,7 +371,7 @@ export default async function DalilPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] py-24 pt-32">
+    <div className="bg-[var(--bg-primary)] text-[var(--text-primary)] py-24 pt-32">
       <div className="max-w-[1280px] mx-auto px-5 md:px-10">
         <Link href="/" className="inline-flex items-center text-[var(--text-muted)] hover:text-[var(--text-accent)] transition-colors mb-10 text-sm tracking-widest uppercase gap-2">
           <span>&larr;</span> Kembali ke Beranda

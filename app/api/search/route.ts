@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import https from "https";
+import fs from "fs";
+import path from "path";
 
 const BOOKS = [
   { id: "abu-daud", name: "Abu Dawud", max: 4419 },
@@ -13,23 +15,45 @@ const BOOKS = [
   { id: "tirmidzi", name: "Tirmidzi", max: 3625 },
 ];
 
-// ── Hadith Index ────────────────────────────────────────────────────
 type IndexedHadith = {
   number: number;
   arab: string;
   id: string;
   bookId: string;
-  rangeStart: number;
 };
 
-const hadithIndex: IndexedHadith[] = [];
+let hadithIndex: IndexedHadith[] = [];
 let indexBuilt = false;
 let indexBuilding = false;
+
+// Try to load pre-built index from file (generated at build time by scripts/generate-search-index.mjs)
+try {
+  const indexPath = path.join(process.cwd(), "public", "search-index.json");
+  if (fs.existsSync(indexPath)) {
+    const raw = fs.readFileSync(indexPath, "utf8");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const compact = JSON.parse(raw) as any[];
+    hadithIndex = compact.map((h) => ({
+      number: h.n,
+      arab: "",
+      id: h.i ?? "",
+      bookId: h.b,
+    }));
+    indexBuilt = true;
+    console.log(`[search] Loaded ${hadithIndex.length} hadiths from search-index.json`);
+  }
+} catch {
+  // File missing or corrupt — will build in background
+}
+
+if (!indexBuilt) {
+  console.log("[search] Pre-built index not found — will build on first request");
+}
 
 // ── Quran Surah Index ───────────────────────────────────────────────
 type IndexedSurah = {
   nomor: number;
-  nama: string;         // Arabic script
+  nama: string;
   namaLatin: string;
   arti: string;
   jumlahAyat: number;
@@ -63,40 +87,48 @@ async function fetchRange(baseUrl: string, bookId: string, start: number, end: n
     if (res.status !== 200) return [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const hadiths: any[] = res.data?.data?.hadiths ?? res.data?.hadiths ?? [];
-    return hadiths.map((h, i) => ({
+    return hadiths.map((h) => ({
       number: h.number,
       arab: h.arab ?? "",
       id: h.id ?? "",
       bookId,
-      rangeStart: start + i,
     }));
   } catch {
     return [];
   }
 }
 
-// Build hadith index (sampled)
+// Build full hadith index in background (fallback for dev / when file missing)
 async function buildIndex(baseUrl: string) {
   if (indexBuilt || indexBuilding) return;
   indexBuilding = true;
 
-  const CHUNK = 20;
-  const POSITIONS = 6;
-
-  for (const book of BOOKS) {
-    const step = Math.floor(book.max / (POSITIONS + 1));
-    for (let i = 0; i < POSITIONS; i++) {
-      const start = Math.max(1, step * (i + 1));
-      const end = Math.min(book.max, start + CHUNK - 1);
-      const hadiths = await fetchRange(baseUrl, book.id, start, end);
-      hadithIndex.push(...hadiths);
-      await new Promise(r => setTimeout(r, 300));
-    }
-    await new Promise(r => setTimeout(r, 800));
+  // On Vercel serverless, skip background build — the pre-built file should exist
+  if (process.env.VERCEL) {
+    indexBuilding = false;
+    return;
   }
 
+  const CHUNK = 250;
+  const DELAY_MS = 100;
+
+  const tempIndex: IndexedHadith[] = [];
+
+  for (const book of BOOKS) {
+    const totalChunks = Math.ceil(book.max / CHUNK);
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK + 1;
+      const end = Math.min((i + 1) * CHUNK, book.max);
+      const hadiths = await fetchRange(baseUrl, book.id, start, end);
+      tempIndex.push(...hadiths);
+      await new Promise(r => setTimeout(r, DELAY_MS));
+    }
+  }
+
+  hadithIndex = tempIndex;
   indexBuilt = true;
   indexBuilding = false;
+  console.log(`[search] Background build complete: ${hadithIndex.length} hadiths`);
 }
 
 // Build Quran surah index from equran.id API
@@ -118,7 +150,7 @@ async function buildSurahIndex() {
       surahIndexBuilt = true;
     }
   } catch {
-    // silently fail — search will just not return quran results
+    // silently fail
   }
 }
 
@@ -210,7 +242,7 @@ const KEY_VERSES: KeyVerse[] = [
     surahNomor: 2,
     surahName: "Al-Baqarah",
     ayatNomor: 261,
-    arab: "مَثَلُ الَّذِينَ يُنْفِقُونَ أَمْوَالَهُمْ فِي سَبِILِ اللَّهِ كَمَثَلِ حَبَّةٍ أَنْبَتَتْ سَبْعَ سَنَابِلَ فِي كُلِّ سُنْبُلَةٍ مِائَةُ حَبَّةٍ",
+    arab: "مَثَلُ الَّذِينَ يُنْفِقُونَ أَمْوَالَهُمْ فِي سَبِيلِ اللَّهِ كَمَثَلِ حَبَّةٍ أَنْبَتَتْ سَبْعَ سَنَابِلَ فِي كُلِّ سُنْبُلَةٍ مِائَةُ حَبَّةٍ",
     translation: "Perumpamaan orang yang menginfakkan hartanya di jalan Allah seperti sebutir biji yang menumbuhkan tujuh tangkai, pada setiap tangkai ada seratus biji.",
     keywords: ["sedekah", "infak", "infaq", "harta", "pemberian", "pahala", "kebaikan"]
   },
@@ -290,7 +322,7 @@ const KEY_VERSES: KeyVerse[] = [
     surahNomor: 17,
     surahName: "Al-Isra'",
     ayatNomor: 23,
-    arab: "وَقَضَىٰ رَبُwكَ أَلَّا تَعْبُدُوا إِلَّا إِيَّاهُ وَبِالْوَالِدَيْنِ إِحْسَانًا ۚ إِمَّا يَبْلُغَنَّ عِنْدَكَ الْكِبَرَ أَحَدُهُمَا أَوْ كِلَاهُمَا فَلَا تَقُلْ لَهُمَا أُفٍّ",
+    arab: "وَقَضَىٰ رَبُّكَ أَلَّا تَعْبُدُوا إِلَّا إِيَّاهُ وَبِالْوَالِدَيْنِ إِحْسَانًا ۚ إِمَّا يَبْلُغَنَّ عِنْدَكَ الْكِبَرَ أَحَدُهُمَا أَوْ كِلَاهُمَا فَلَا تَقُلْ لَهُمَا أُفٍّ",
     translation: "Dan Tuhanmu telah memerintahkan agar kamu jangan menyembah selain Dia dan hendaklah berbuat baik kepada ibu bapakmu. Jika salah seorang di antara keduanya atau kedua-duanya sampai berusia lanjut dalam pemeliharaanmu, maka sekali-kali janganlah engkau mengatakan kepada keduanya perkataan 'ah'.",
     keywords: ["orang tua", "ibu", "ayah", "berbakti", "walidain", "bapak", "akhlak"]
   },
@@ -439,7 +471,7 @@ function scoreText(text: string, originalWords: string[], expandedWords: string[
 // ── Hadith scoring ──────────────────────────────────────────────────
 function scoreHadith(h: IndexedHadith, originalWords: string[], expandedWords: string[], rawQuery: string): number {
   const indonesianScore = scoreText(h.id, originalWords, expandedWords, rawQuery);
-  
+
   let arabScore = 0;
   const arab = h.arab.toLowerCase();
   for (const w of originalWords) {
@@ -478,7 +510,7 @@ function scoreSurah(s: IndexedSurah, originalWords: string[], expandedWords: str
 // ── Key Verse scoring ───────────────────────────────────────────────
 function scoreKeyVerse(v: KeyVerse, originalWords: string[], expandedWords: string[], rawQuery: string): number {
   const translationScore = scoreText(v.translation, originalWords, expandedWords, rawQuery);
-  
+
   // Keyword scoring
   let keywordScore = 0;
   for (const kw of v.keywords) {
@@ -508,21 +540,15 @@ export async function GET(request: Request) {
 
   if (query.length < 2) return NextResponse.json({ results: [], quranResults: [], indexed: false });
 
-  // Kick off index builds (fire-and-forget)
+  // Kick off index builds in background (fire-and-forget) only if pre-built file wasn't loaded
   if (!indexBuilt && !indexBuilding) buildIndex(baseUrl);
   if (!surahIndexBuilt) buildSurahIndex();
 
   const queryWords = query.split(/\s+/);
   const expandedWords = expandQueryWords(queryWords);
 
-  // ── Hadith search ──
-  let corpusToSearch = hadithIndex;
-  if (!indexBuilt && corpusToSearch.length === 0) {
-    const quickFetch = await fetchRange(baseUrl, "bukhari", 1, 50);
-    corpusToSearch = quickFetch;
-  }
-
-  const scoredHadiths = corpusToSearch
+  // ── Hadith search over the COMPLETE index ──
+  const scoredHadiths = hadithIndex
     .map(h => ({ h, s: scoreHadith(h, queryWords, expandedWords, query) }))
     .filter(x => x.s > 0)
     .sort((a, b) => b.s - a.s)
@@ -535,7 +561,7 @@ export async function GET(request: Request) {
     id: h.id,
     bookId: h.bookId,
     bookName: BOOKS.find(b => b.id === h.bookId)?.name ?? h.bookId,
-    rangeStart: h.rangeStart,
+    rangeStart: h.number,
   }));
 
   // ── Quran search (Combine Surahs + Key Verses) ──
@@ -547,7 +573,6 @@ export async function GET(request: Request) {
     .map(v => ({ v, score: scoreKeyVerse(v, queryWords, expandedWords, query) }))
     .filter(x => x.score > 0);
 
-  // Map Surahs to QuranResults (keep score in separate tuple for sorting)
   interface QuranResultItem {
     type: "quran"; nomor: number; nama: string; namaLatin: string;
     arti: string; jumlahAyat: number; tempatTurun: string;
@@ -558,7 +583,6 @@ export async function GET(request: Request) {
     { type: "quran", nomor: s.nomor, nama: s.nama, namaLatin: s.namaLatin, arti: s.arti, jumlahAyat: s.jumlahAyat, tempatTurun: s.tempatTurun },
   ]));
 
-  // Map Verses to QuranResults (cross-referencing with surah metadata)
   const quranVerseResults: [number, QuranResultItem][] = scoredKeyVerses.map(({ v, score }) => {
     const sDetail = surahIndex.find(s => s.nomor === v.surahNomor);
     return [
@@ -567,7 +591,6 @@ export async function GET(request: Request) {
     ];
   });
 
-  // Combine and sort by score, then map to strip score
   const quranResults = [...quranSurahResults, ...quranVerseResults]
     .sort((a, b) => b[0] - a[0])
     .slice(0, 8)

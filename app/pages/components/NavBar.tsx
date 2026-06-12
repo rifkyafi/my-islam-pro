@@ -5,17 +5,19 @@ import { usePathname } from 'next/navigation'
 import { useThemeContext } from './ThemeProvider'
 import { SunIcon, MoonIcon } from './Icons'
 import { useEffect, useState, startTransition } from 'react'
+import { motion } from 'motion/react'
 
 const navItems = [
   { href: '/', label: 'Beranda' },
   { href: '/quran', label: 'Kitab' },
-  { href: '/hadis', label: 'Hadis Pilihan' },
+  { href: '/hadis', label: 'Hadits Pilihan' },
   { href: '/dalil', label: 'Dalil' },
 ]
 
 function ThemeToggle() {
   const { theme, toggle } = useThemeContext()
   const [mounted, setMounted] = useState(false)
+  const [rippleKey, setRippleKey] = useState(0)
 
   useEffect(() => startTransition(() => setMounted(true)), [])
 
@@ -23,10 +25,15 @@ function ThemeToggle() {
     return <div className="w-9 h-9" />
   }
 
+  const handleToggle = () => {
+    toggle()
+    setRippleKey(k => k + 1)
+  }
+
   return (
     <button
-      onClick={toggle}
-      className="relative flex items-center justify-center w-9 h-9 rounded-full border border-[var(--accent)]/30 text-[var(--text-accent)] hover:bg-[var(--accent)]/10 active:bg-[var(--accent)]/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)]"
+      onClick={handleToggle}
+      className="relative flex items-center justify-center w-9 h-9 rounded-full border border-[var(--accent)]/30 text-[var(--text-accent)] hover:bg-[var(--accent)]/10 active:bg-[var(--accent)]/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] overflow-hidden"
       aria-label={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
       aria-pressed={theme === 'dark'}
     >
@@ -47,6 +54,16 @@ function ThemeToggle() {
            }}>
         <SunIcon size={18} />
       </div>
+
+      {rippleKey > 0 && (
+        <motion.span
+          key={rippleKey}
+          initial={{ scale: 0, opacity: 0.4 }}
+          animate={{ scale: 5, opacity: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="absolute inset-0 rounded-full bg-white/20 dark:bg-black/20 pointer-events-none"
+        />
+      )}
 
       <div 
         className="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent)]/5 opacity-0 transition-opacity duration-300 pointer-events-none"
@@ -76,10 +93,10 @@ function NavInner() {
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-cormorant text-[0.95rem] font-semibold text-[var(--text-primary)] tracking-[0.5px]">
-              Hadis Tematik
+              Hadits Tematik
             </span>
             <span className="text-[0.55rem] tracking-[2.5px] uppercase text-[var(--text-muted)] mt-0.5">
-              Koleksi Hadis
+              Koleksi Hadits
             </span>
           </div>
         </Link>
@@ -135,7 +152,7 @@ function NavInner() {
             href="?search=true"
             scroll={false}
             className="flex items-center justify-center w-9 h-9 border border-[var(--accent)]/30 text-[var(--text-accent)] no-underline hover:bg-[var(--accent)]/10 transition-colors"
-            aria-label="Cari Hadis"
+            aria-label="Cari Hadits"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

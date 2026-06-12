@@ -81,11 +81,11 @@ export function HeroSection() {
         className="relative z-10 text-center max-w-[700px] px-8 pt-32 pb-16 flex flex-col items-center"
       >
         <motion.p variants={fadeUp} className="text-[0.7rem] font-semibold tracking-[5px] uppercase text-[var(--text-accent)] mb-5">
-          Koleksi Hadis Pilihan
+          Koleksi Hadits Pilihan
         </motion.p>
 
         <motion.h1 variants={fadeUp} className="font-cormorant text-[clamp(2.75rem,6.5vw,5rem)] font-light leading-[1.12] text-[var(--text-hero)] mb-6 tracking-[-0.5px]">
-          Hadis Berdasarkan
+          Hadits Berdasarkan
           <br />
           <em className="italic text-[var(--text-accent-bright)]">Tema Kehidupan</em>
         </motion.h1>

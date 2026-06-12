@@ -69,12 +69,12 @@ export function ThemesSection() {
             <h2 className="font-cormorant text-[clamp(2rem,3.5vw,3rem)] font-light leading-[1.1] text-[var(--text-primary)]">
               Kitab Rujukan
               <br />
-              <em className="italic text-[var(--text-accent)] opacity-80">9 Kitab Hadis dan Al-Qur&apos;an</em>
+              <em className="italic text-[var(--text-accent)] opacity-80">9 Kitab Hadits dan Al-Qur&apos;an</em>
             </h2>
           </div>
           <div className="flex flex-col items-start md:items-end gap-3">
             <p className="text-[0.875rem] font-light text-[var(--text-muted)] max-w-full md:max-w-[280px] md:text-right leading-[1.8]">
-              Menghimpun ayat suci Al-Qur&apos;an dan ribuan hadis sahih sebagai rujukan utama umat Islam
+              Menghimpun ayat suci Al-Qur&apos;an dan ribuan hadits sahih sebagai rujukan utama umat Islam
             </p>
             <span className="inline-flex items-center gap-2 px-3 py-1.5 border border-[var(--accent-border)] text-[var(--text-accent)] opacity-70 text-[0.65rem] tracking-[2.5px] uppercase">
               <span className="w-1 h-1 rounded-full bg-[var(--accent)] animate-pulse" />

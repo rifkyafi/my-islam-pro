@@ -216,7 +216,7 @@ export function SearchModal() {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Cari surah, ayat, atau kata kunci hadis…"
+                placeholder="Cari surah, ayat, atau kata kunci hadits…"
                 className="flex-1 bg-transparent text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none text-[0.95rem]"
               />
               {query && (
@@ -261,7 +261,7 @@ export function SearchModal() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
-                <p className="text-[0.68rem] text-[var(--accent)]/80">Mengindeks hadis… hasil akan muncul otomatis, mohon tunggu</p>
+                <p className="text-[0.68rem] text-[var(--accent)]/80">Mengindeks hadits… hasil akan muncul otomatis, mohon tunggu</p>
               </div>
             )}
 
@@ -377,7 +377,7 @@ export function SearchModal() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  <p className="text-[var(--text-muted)] text-sm">Sedang menyiapkan indeks hadis…</p>
+                  <p className="text-[var(--text-muted)] text-sm">Sedang menyiapkan indeks hadits…</p>
                   <p className="text-[var(--text-muted)]/50 text-xs">Hasil akan muncul otomatis dalam beberapa detik</p>
                 </div>
               )}
@@ -387,7 +387,7 @@ export function SearchModal() {
                 <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
                   <span className="font-neirizi text-4xl text-[var(--accent)]/30">بحث</span>
                   <p className="text-[var(--text-muted)] text-sm">Tidak ditemukan hasil untuk <span className="text-[var(--text-primary)]">&quot;{query}&quot;</span></p>
-                  <p className="text-[var(--text-muted)]/60 text-xs">Coba nama surah (al-baqarah), nomor surah (2), atau kata kunci hadis</p>
+                   <p className="text-[var(--text-muted)]/60 text-xs">Coba nama surah (al-baqarah), nomor surah (2), atau kata kunci hadits</p>
                 </div>
               )}
 

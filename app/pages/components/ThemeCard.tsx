@@ -17,9 +17,43 @@ const BOOK_META: Record<string, { arabic: string; abbr: string; roman: string }>
   'quran':     { arabic: 'القرآن',     abbr: 'QRN', roman: 'X'   },
 };
 
-export function ThemeCard({ theme }: { theme: LifeTheme; size?: 'sm' | 'md' | 'lg' }) {
+export function ThemeCard({ theme, size = 'md' }: { theme: LifeTheme; size?: 'sm' | 'md' | 'lg' }) {
   const meta = BOOK_META[theme.slug] ?? { arabic: 'كتاب', abbr: '—', roman: '' };
   const formattedCount = String(theme.hadithCount).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+  // Size-specific styles mapping
+  const cardStyles = {
+    lg: {
+      padding: 'p-8 lg:p-9',
+      title: 'text-[1.8rem] lg:text-[2.2rem] md:text-[2rem]',
+      arabicBg: 'text-[6.5rem] lg:text-[8rem] -bottom-3 -right-3',
+      arabicSub: 'text-lg',
+      count: 'text-[2.2rem] lg:text-[2.6rem]',
+      spacing: 'mb-5',
+      innerSpacing: 'mb-4',
+      pt: 'pt-6'
+    },
+    md: {
+      padding: 'p-7',
+      title: 'text-[1.6rem] lg:text-[1.7rem]',
+      arabicBg: 'text-[5.5rem] -bottom-2 -right-2',
+      arabicSub: 'text-base',
+      count: 'text-[1.8rem] lg:text-[2rem]',
+      spacing: 'mb-5',
+      innerSpacing: 'mb-4',
+      pt: 'pt-6'
+    },
+    sm: {
+      padding: 'p-5 lg:p-6',
+      title: 'text-[1.25rem] lg:text-[1.35rem] leading-[1.2]',
+      arabicBg: 'text-[4.5rem] lg:text-[4.8rem] -bottom-1 -right-1',
+      arabicSub: 'text-sm',
+      count: 'text-[1.5rem] lg:text-[1.7rem]',
+      spacing: 'mb-3',
+      innerSpacing: 'mb-2.5',
+      pt: 'pt-4'
+    }
+  }[size];
 
   return (
     <motion.div
@@ -37,12 +71,12 @@ export function ThemeCard({ theme }: { theme: LifeTheme; size?: 'sm' | 'md' | 'l
         <span className="absolute top-4 right-5 font-cormorant text-[0.62rem] tracking-[3px] uppercase text-[var(--accent-border)] group-hover:text-[var(--accent)] transition-colors duration-300">
           {meta.roman}
         </span>
-        <span className="absolute -bottom-2 -right-2 font-neirizi text-[var(--accent-glow)] group-hover:text-[var(--accent)] leading-none select-none pointer-events-none transition-all duration-500 group-hover:scale-110 origin-bottom-right text-[5.5rem]">
+        <span className={`absolute font-neirizi text-[var(--accent-glow)] group-hover:text-[var(--accent)] leading-none select-none pointer-events-none transition-all duration-500 group-hover:scale-110 origin-bottom-right ${cardStyles.arabicBg}`}>
           {meta.arabic}
         </span>
         <div className="absolute -bottom-10 -right-10 w-32 h-32 rounded-full bg-[radial-gradient(circle,rgba(212,140,70,0.07),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <div className="relative z-10 flex flex-col flex-1 p-7">
-          <div className="flex items-start justify-between mb-5">
+        <div className={`relative z-10 flex flex-col flex-1 ${cardStyles.padding}`}>
+          <div className={`flex items-start justify-between ${cardStyles.spacing}`}>
             <span className="inline-flex items-center px-2.5 py-1 border border-[var(--accent-border)] group-hover:border-[var(--accent)] text-[var(--text-accent)] group-hover:text-[var(--text-accent)] text-[0.58rem] font-semibold tracking-[3px] uppercase transition-all duration-300">
               {meta.abbr}
             </span>
@@ -53,19 +87,19 @@ export function ThemeCard({ theme }: { theme: LifeTheme; size?: 'sm' | 'md' | 'l
               className="w-1.5 h-1.5 rounded-full bg-[var(--accent-border)] group-hover:bg-[var(--accent)] transition-colors duration-300 mt-1.5"
             />
           </div>
-          <h3 className="font-cormorant font-light text-[var(--text-primary)] leading-[1.15] mb-1.5 tracking-[-0.2px] text-[1.7rem]">
+          <h3 className={`font-cormorant font-light text-[var(--text-primary)] leading-[1.15] tracking-[-0.2px] ${cardStyles.title} ${cardStyles.innerSpacing}`}>
             {theme.title}
           </h3>
-          <p className="font-neirizi text-base text-[var(--text-accent)] group-hover:text-[var(--text-accent)] transition-colors duration-300 text-right mb-4">
+          <p className={`font-neirizi text-[var(--text-accent)] group-hover:text-[var(--text-accent)] transition-colors duration-300 text-right ${cardStyles.arabicSub} ${cardStyles.innerSpacing}`}>
             {meta.arabic}
           </p>
-          <div className="w-full h-px bg-[var(--accent-border-light)] group-hover:bg-[var(--accent-border)] transition-colors duration-300 mb-4" />
-          <div className="flex items-center justify-between mt-auto pt-6">
+          <div className={`w-full h-px bg-[var(--accent-border-light)] group-hover:bg-[var(--accent-border)] transition-colors duration-300 ${cardStyles.innerSpacing}`} />
+          <div className={`flex items-center justify-between mt-auto ${cardStyles.pt}`}>
             <div className="flex flex-col">
-              <span className="font-cormorant font-light text-[var(--text-accent)] leading-none text-[2rem]">
+              <span className={`font-cormorant font-light text-[var(--text-accent)] leading-none ${cardStyles.count}`}>
                 {formattedCount}
               </span>
-              <span className="text-[0.62rem] tracking-[2.5px] uppercase text-[var(--text-muted)] mt-0.5">Hadis</span>
+              <span className="text-[0.62rem] tracking-[2.5px] uppercase text-[var(--text-muted)] mt-0.5">Hadits</span>
             </div>
             <motion.div
               initial={{ x: -8, opacity: 0 }}

@@ -37,7 +37,7 @@ export function FeaturedHadith({ data }: { data: FeaturedHadithData | null }) {
           <div className="flex items-center gap-3">
             <div className="w-8 h-px bg-[var(--accent-border)]" />
             <span className="text-[0.65rem] font-semibold tracking-[5px] uppercase text-[var(--text-accent)]">
-              Hadis Pilihan
+              Hadits Pilihan
             </span>
           </div>
           <div className="flex-1 h-px bg-[var(--accent-border-light)]" />

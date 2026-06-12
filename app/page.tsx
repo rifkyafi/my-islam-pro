@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   description:
     "Temukan petunjuk Rasulullah ﷺ berdasarkan tema kehidupan sehari-hari — tersusun sistematis, mudah dipahami dan diamalkan.",
   openGraph: {
-    title: "Hadis Berdasarkan Tema Kehidupan",
-    description: "Koleksi hadis pilihan berdasarkan tema kehidupan.",
+  title: "Hadits Berdasarkan Tema Kehidupan",
+    description: "Koleksi hadits pilihan berdasarkan tema kehidupan.",
     type: "website",
   },
 };

@@ -38,12 +38,12 @@ export function CtaBanner() {
               </p>
             </div>
             <h2 className="font-cormorant text-[clamp(2rem,4vw,3rem)] font-light text-[var(--text-primary)] leading-[1.15] mb-3">
-              Temukan Hadis yang
+              Temukan Hadits yang
               <br />
               <em className="italic text-[var(--text-accent-bright)]">Kamu Butuhkan</em>
             </h2>
             <p className="text-[0.875rem] font-light text-[var(--text-muted)] max-w-[400px] leading-[1.8]">
-              Ribuan hadis sahih tersusun rapi, siap memandu setiap langkah kehidupanmu.
+              Ribuan hadits sahih tersusun rapi, siap memandu setiap langkah kehidupanmu.
             </p>
           </motion.div>
 
@@ -62,7 +62,7 @@ export function CtaBanner() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              Cari Hadis
+              Cari Hadits
             </Link>
             <a
               href="#tema"
@@ -82,8 +82,8 @@ export function CtaBanner() {
           className="flex items-center gap-8 mt-14 pt-8 border-t border-[var(--accent-border-light)]"
         >
           {[
-            ['9', 'Kitab Hadis'],
-            ['35,000+', 'Total Hadis'],
+            ['9', 'Kitab Hadits'],
+            ['35,000+', 'Total Hadits'],
             ['Gratis', 'Selamanya'],
           ].map(([val, lbl]) => (
             <div key={lbl} className="flex flex-col">

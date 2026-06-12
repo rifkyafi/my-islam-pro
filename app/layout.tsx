@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hadis Berdasarkan Tema Kehidupan",
+  title: "Hadits Berdasarkan Tema Kehidupan",
   description: "Temukan petunjuk Rasulullah ﷺ berdasarkan tema kehidupan sehari-hari.",
 };
 
@@ -50,7 +50,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-full flex flex-col font-sans" cz-shortcut-listen="true">
         <ThemeProvider>
           <NavBar />
           <main className="flex-grow">

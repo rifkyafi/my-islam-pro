@@ -78,8 +78,6 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
       const hash = window.location.hash;
       if (!hash || !hash.startsWith('#hadith-')) return false;
 
-      const targetNumber = parseInt(hash.replace('#hadith-', ''), 10);
-
       const element = document.getElementById(hash.replace('#', ''));
       if (!element) return false;
 
@@ -192,7 +190,7 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
           <div className="flex-1 flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <div className="w-12 h-12 border-2 border-[var(--accent-border)] border-t-[var(--accent)] rounded-full animate-spin" />
-              <p className="font-cormorant text-xl text-[var(--text-accent)]">Memuat Hadis...</p>
+              <p className="font-cormorant text-xl text-[var(--text-accent)]">Memuat Hadits...</p>
             </div>
           </div>
         ) : fetchError ? (
@@ -200,7 +198,7 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
             <div className="flex flex-col items-center gap-3 text-center max-w-md">
 <p className="font-cormorant text-2xl text-[var(--text-accent)]">Data Tidak Ditemukan</p>
                <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-                Hadis yang Anda cari tidak tersedia atau terjadi kesalahan saat memuat data.
+                Hadits yang Anda cari tidak tersedia atau terjadi kesalahan saat memuat data.
               </p>
               <button
                 onClick={() => {
@@ -238,7 +236,7 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
                 {bookData.name}
               </h2>
               <p className="text-[var(--text-muted)] text-sm md:text-base font-light flex items-center gap-3">
-                <span className="text-[var(--text-accent-light)]">{bookData.available} Hadis Tersedia</span>
+                <span className="text-[var(--text-accent-light)]">{bookData.available} Hadits Tersedia</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]/50"></span>
                 <span>Menampilkan {start}-{Math.min(end, bookData.available)}</span>
               </p>

@@ -29,7 +29,7 @@ export function CopyButton({ textToCopy, className = "" }: CopyButtonProps) {
           ? 'bg-[var(--accent-dim)]/20 text-[var(--text-accent-dim)] border border-[var(--accent-border)]' 
           : 'bg-[var(--accent)]/10 text-[var(--text-accent)] border border-[var(--accent-border-light)] hover:bg-[var(--accent)]/20 hover:border-[var(--accent-border)]'} 
         ${className}`}
-      title={copied ? "Tersalin!" : "Salin Hadis"}
+      title={copied ? "Tersalin!" : "Salin Hadits"}
     >
       {copied ? <CheckIcon size={18} /> : <CopyIcon size={18} />}
       <span className="ml-2 text-[0.7rem] font-medium tracking-wider uppercase">

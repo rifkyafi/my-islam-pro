@@ -15,8 +15,8 @@ const itemAnim: Variants = {
 
 export function StatsStrip() {
   const stats = [
-    { value: 9,    suffix: '',  label: 'Kitab Hadis',    arabic: 'كتب',    desc: 'Kitab hadis sahih utama' },
-    { value: 35000, suffix: '+', label: 'Total Hadis',   arabic: 'حديث',   desc: 'Hadis dalam semua kitab' },
+    { value: 9,    suffix: '',  label: 'Kitab Hadits',    arabic: 'كتب',    desc: 'Kitab hadits sahih utama' },
+    { value: 35000, suffix: '+', label: 'Total Hadits',   arabic: 'حديث',   desc: 'Hadits dalam semua kitab' },
     { value: 1400, suffix: '+',  label: 'Tahun Dijaga',  arabic: 'سنة',    desc: 'Warisan ilmu peradaban' },
   ]
 

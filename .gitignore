@@ -45,6 +45,9 @@ claude.md
 # vercel
 .vercel
 
+# generated search index
+/public/search-index.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

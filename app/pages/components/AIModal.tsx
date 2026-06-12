@@ -59,7 +59,6 @@ function linkifyReferences(text: string): string {
     (match, linkText, url) => {
       if (url.includes('/hadis?book=')) {
         const bookMatch = url.match(/\/hadis\?book=([^&]+)/);
-        const hasHash = url.includes('#hadith-');
 
         // Try to extract number from existing hash or from link text
         let number = '';
@@ -144,7 +143,7 @@ function CopyMessageButton({ text }: { text: string }) {
 }
 
 const starterQuestions = [
-  "Apa itu hadis?", "Berikan nasihat tentang sabar", "Pentingnya shalat berjamaah",
+  "Apa itu hadits?", "Berikan nasihat tentang sabar", "Pentingnya shalat berjamaah",
   "Adab menuntut ilmu", "Nasihat saat sedih", "Kisah singkat Rasulullah ﷺ",
   "Apa itu ikhlas?", "Keutamaan membaca Al-Qur'an", "Bagaimana cara bertaubat?",
   "Manfaat silaturahmi", "Zakat dan sedekah", "Puasa di bulan Ramadhan"
