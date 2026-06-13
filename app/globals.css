@@ -110,6 +110,23 @@ body {
   transition: background-color 0.35s ease, color 0.35s ease;
 }
 
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition-delay: 0s !important;
+  transition-duration: 0.45s !important;
+  transition-timing-function: ease !important;
+  transition-property: background-color, color, border-color, box-shadow, fill, stroke, opacity !important;
+}
+
+html.theme-transitioning .theme-ripple-wave {
+  transition-delay: 0s !important;
+  transition-duration: 0.6s !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-property: transform !important;
+}
+
 @utility font-montserrat {
   font-family: var(--font-montserrat), 'Montserrat', sans-serif;
 }

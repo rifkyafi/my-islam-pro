@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, startTransition } from 'react';
+import { useState, useEffect, useCallback, startTransition, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CardList } from '../pages/components/CardList';
 
@@ -42,15 +42,19 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(false);
   const [surahDetail, setSurahSurahDetail] = useState<Surah | null>(null);
-  const [autoExpanded, setAutoExpanded] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const [cardListKey, setCardListKey] = useState(0);
+  const scrollRafRef = useRef<number>(0);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const s = Number(searchParams.get('surah'));
     if (s && s !== activeSurahNo) {
       startTransition(() => {
         setTargetAyat(0);
-        setAutoExpanded(false);
         setCardListKey(k => k + 1);
       });
       setTimeout(() => startTransition(() => setActiveSurahNo(s)), 0);
@@ -64,7 +68,6 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
       if (ayatNo) {
         startTransition(() => {
           setTargetAyat(ayatNo);
-          setAutoExpanded(false);
         });
       }
     }
@@ -111,25 +114,33 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
     setTimeout(() => fetchVerses(activeSurahNo), 0);
   }, [activeSurahNo, fetchVerses]);
 
-  // Scroll ke ayat target setelah data surah benar-benar siap
+  // Scroll ke ayat target — retry via requestAnimationFrame hingga elemen ditemukan
   useEffect(() => {
     if (loading || verses.length === 0) return;
 
     const targetSurah = Number(searchParams.get('surah'));
     if (targetSurah && targetSurah !== activeSurahNo) return;
 
-    const targetAyat = searchParams.get('ayat') ||
+    const ayatNo = searchParams.get('ayat') ||
       (window.location.hash.startsWith('#ayat-')
         ? window.location.hash.replace('#ayat-', '')
         : null);
-    if (!targetAyat) return;
+    if (!ayatNo) return;
 
     let cancelled = false;
+    let retries = 0;
+    const MAX_RETRIES = 100;
 
     const doScroll = () => {
       if (cancelled) return;
-      const el = document.getElementById(`ayat-${targetAyat}`);
-      if (!el) return;
+      const el = document.getElementById(`ayat-${ayatNo}`);
+      if (!el) {
+        if (retries < MAX_RETRIES) {
+          retries++;
+          scrollRafRef.current = requestAnimationFrame(doScroll);
+        }
+        return;
+      }
 
       const offset = 140;
       const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
@@ -141,14 +152,12 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
       setTimeout(() => el.classList.remove('animate-target-pulse'), 4000);
     };
 
-    doScroll();
-    const t1 = setTimeout(doScroll, 50);
-    const t2 = setTimeout(doScroll, 200);
-    const t3 = setTimeout(doScroll, 500);
-    const t4 = setTimeout(doScroll, 1200);
+    scrollRafRef.current = requestAnimationFrame(doScroll);
 
-    window.addEventListener('hashchange', doScroll);
-    return () => { cancelled = true; clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); window.removeEventListener('hashchange', doScroll); };
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(scrollRafRef.current);
+    };
   }, [loading, verses, searchParams, activeSurahNo]);
 
   const activeSurah = surahs.find(s => s.nomor === activeSurahNo);
@@ -184,7 +193,6 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
                     onClick={() => {
                       setActiveSurahNo(surah.nomor);
                       setTargetAyat(0);
-                      setAutoExpanded(false);
                       setCardListKey(k => k + 1);
                     }}
                     className={`text-[0.8rem] lg:text-[0.85rem] text-left px-4 py-2 lg:px-3 lg:py-2.5 rounded-full lg:rounded-md transition-all whitespace-nowrap shadow-sm lg:shadow-none border flex items-center gap-3 ${
@@ -222,7 +230,7 @@ export default function QuranClientView({ surahs }: { surahs: Surah[] }) {
           <div key={cardListKey} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <CardList 
               collapseAll={true}
-              expanded={!!searchParams.get('ayat')}
+              expanded={!!searchParams.get('ayat') || (isClient && window.location.hash.startsWith('#ayat-'))}
               theme={{
                 slug: `quran/${activeSurah.nomor}`,
                 title: `${activeSurah.nama_latin} (${activeSurah.nama})`,

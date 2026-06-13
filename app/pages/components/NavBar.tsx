@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import { useThemeContext } from './ThemeProvider'
 import { SunIcon, MoonIcon } from './Icons'
 import { useEffect, useState, startTransition } from 'react'
-import { motion } from 'motion/react'
 
 const navItems = [
   { href: '/', label: 'Beranda' },
@@ -17,7 +16,6 @@ const navItems = [
 function ThemeToggle() {
   const { theme, toggle } = useThemeContext()
   const [mounted, setMounted] = useState(false)
-  const [rippleKey, setRippleKey] = useState(0)
 
   useEffect(() => startTransition(() => setMounted(true)), [])
 
@@ -25,9 +23,44 @@ function ThemeToggle() {
     return <div className="w-9 h-9" />
   }
 
-  const handleToggle = () => {
-    toggle()
-    setRippleKey(k => k + 1)
+  const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    document.documentElement.classList.add('theme-transitioning');
+
+    toggle();
+
+    const diagonal = Math.ceil(Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2));
+    const wave = document.createElement('div');
+    wave.className = 'theme-ripple-wave';
+    wave.style.cssText = `
+      position: fixed;
+      left: ${cx - diagonal}px;
+      top: ${cy - diagonal}px;
+      width: ${diagonal * 2}px;
+      height: ${diagonal * 2}px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent) 0%, transparent 60%);
+      z-index: 9998;
+      pointer-events: none;
+      opacity: 0.1;
+      transform: scale(0);
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    `;
+    document.body.appendChild(wave);
+
+    wave.addEventListener('transitionend', () => {
+      wave.remove();
+      document.documentElement.classList.remove('theme-transitioning');
+    }, { once: true });
+
+    void wave.offsetWidth;
+
+    requestAnimationFrame(() => {
+      wave.style.transform = 'scale(1)';
+    });
   }
 
   return (
@@ -54,16 +87,6 @@ function ThemeToggle() {
            }}>
         <SunIcon size={18} />
       </div>
-
-      {rippleKey > 0 && (
-        <motion.span
-          key={rippleKey}
-          initial={{ scale: 0, opacity: 0.4 }}
-          animate={{ scale: 5, opacity: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="absolute inset-0 rounded-full bg-white/20 dark:bg-black/20 pointer-events-none"
-        />
-      )}
 
       <div 
         className="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent)]/5 opacity-0 transition-opacity duration-300 pointer-events-none"

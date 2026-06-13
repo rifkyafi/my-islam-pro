@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const GITHUB_RAW = 'https://raw.githubusercontent.com/gadingnst/hadith-api/master/books';
+const GITHUB_RAW = process.env.GITHUB_RAW_URL || 'https://raw.githubusercontent.com/gadingnst/hadith-api/master/books';
 
 const BOOKS = [
   { id: "abu-daud", name: "Abu Dawud", max: 4419 },

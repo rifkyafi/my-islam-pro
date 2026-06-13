@@ -30,6 +30,26 @@ interface QuranResult {
 type SearchResult = HadithResult | QuranResult;
 type FilterTab = 'all' | 'quran' | 'hadith';
 
+interface SearchHistoryItem {
+  query: string;
+  timestamp: number;
+}
+
+const HISTORY_KEY = 'search-history';
+const MAX_HISTORY = 10;
+
+function formatRelativeTime(timestamp: number): string {
+  const diff = Date.now() - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'Baru saja';
+  if (minutes < 60) return `${minutes} menit lalu`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} jam lalu`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} hari lalu`;
+  return new Date(timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+}
+
 function useWordAwareDebounce(value: string, slowDelay = 700): string {
   const [debounced, setDebounced] = useState(value.trim());
   useEffect(() => {
@@ -75,9 +95,31 @@ export function SearchModal() {
   const [indexed, setIndexed] = useState(false);
   const [isIndexing, setIsIndexing] = useState(false);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
+  const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  });
   const inputRef = useRef<HTMLInputElement>(null);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedQuery = useWordAwareDebounce(query);
+
+  // Persist search history ke sessionStorage
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory));
+    } catch {}
+  }, [searchHistory]);
+
+  const addToHistory = useCallback((q: string) => {
+    if (!q.trim() || q.length < 2) return;
+    setSearchHistory(prev => {
+      const filtered = prev.filter(item => item.query.toLowerCase() !== q.toLowerCase());
+      return [{ query: q.trim(), timestamp: Date.now() }, ...filtered].slice(0, MAX_HISTORY);
+    });
+  }, []);
 
   const closeModal = useCallback(() => {
     const newParams = new URLSearchParams(searchParams.toString());
@@ -137,6 +179,8 @@ export function SearchModal() {
       const serverIndexed = json.indexed === true;
       setIndexed(serverIndexed);
 
+      if (!isRetry) addToHistory(q);
+
       if (!serverIndexed) {
         setIsIndexing(true);
         retryRef.current = setTimeout(() => {
@@ -152,7 +196,7 @@ export function SearchModal() {
       setLoading(false);
       setSearched(true);
     }
-  }, []);
+  }, [addToHistory]);
 
   useEffect(() => {
     if (retryRef.current) clearTimeout(retryRef.current);
@@ -273,7 +317,7 @@ export function SearchModal() {
                 <ul className="divide-y divide-[var(--accent)]/8">
                   {filteredResults.map((r, i) => (
                     <motion.li
-                      key={r.type === 'quran' ? `quran-${r.nomor}` : `hadith-${r.bookId}-${r.number}`}
+                      key={r.type === 'quran' ? `quran-${r.nomor}-${r.ayatNomor ?? 'surah'}` : `hadith-${r.bookId}-${r.number}`}
                       initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.03 }}
@@ -282,7 +326,7 @@ export function SearchModal() {
                         /* ── Quran Result ── */
                         <button
                           onClick={() => {
-                            router.push(`/quran?surah=${r.nomor}${r.ayatNomor ? `&ayat=${r.ayatNomor}` : ''}`);
+                            router.push(`/quran?surah=${r.nomor}${r.ayatNomor ? `&ayat=${r.ayatNomor}#ayat-${r.ayatNomor}` : ''}`);
                           }}
                           className="w-full text-left px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors"
                         >
@@ -391,17 +435,47 @@ export function SearchModal() {
                 </div>
               )}
 
-              {/* Idle State */}
+              {/* Search History or Idle State */}
               {!loading && !searched && query.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-10 gap-3">
-                  <div className="flex items-center gap-4">
-                    <span className="font-neirizi text-4xl text-[var(--accent)]/20">القرآن</span>
-                    <span className="text-[var(--accent)]/15 text-2xl">·</span>
-                    <span className="font-neirizi text-4xl text-[var(--accent)]/20">حديث</span>
+                searchHistory.length > 0 ? (
+                  <div className="py-3">
+                    <div className="flex items-center justify-between px-5 py-2">
+                      <span className="text-[0.6rem] tracking-[2px] uppercase text-[var(--text-muted)]/50 font-semibold">Riwayat Pencarian</span>
+                      <button
+                        onClick={() => setSearchHistory([])}
+                        className="text-[0.6rem] text-[var(--accent)]/60 hover:text-[var(--accent)] transition-colors tracking-wide"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                    <ul className="divide-y divide-[var(--accent)]/5">
+                      {searchHistory.map((item, i) => (
+                        <li key={i}>
+                          <button
+                            onClick={() => setQuery(item.query)}
+                            className="w-full text-left px-5 py-2.5 flex items-center gap-3 hover:bg-[var(--bg-card-hover)] transition-colors group"
+                          >
+                            <svg className="w-3.5 h-3.5 text-[var(--text-muted)]/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="flex-1 text-[0.85rem] text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors truncate">{item.query}</span>
+                            <span className="text-[0.6rem] text-[var(--text-muted)]/50 shrink-0">{formatRelativeTime(item.timestamp)}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <p className="text-[var(--text-muted)] text-sm">Ketik untuk mulai mencari</p>
-                  <p className="text-[var(--text-muted)]/40 text-xs">Contoh: al-baqarah, shalat, jujur, sabar, nomor surah (2, 36…)</p>
-                </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-10 gap-3">
+                    <div className="flex items-center gap-4">
+                      <span className="font-neirizi text-4xl text-[var(--accent)]/20">القرآن</span>
+                      <span className="text-[var(--accent)]/15 text-2xl">·</span>
+                      <span className="font-neirizi text-4xl text-[var(--accent)]/20">حديث</span>
+                    </div>
+                    <p className="text-[var(--text-muted)] text-sm">Ketik untuk mulai mencari</p>
+                    <p className="text-[var(--text-muted)]/40 text-xs">Contoh: al-baqarah, shalat, jujur, sabar, nomor surah (2, 36…)</p>
+                  </div>
+                )
               )}
 
               {/* Loading */}

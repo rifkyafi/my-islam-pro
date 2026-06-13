@@ -182,8 +182,8 @@ export function CardList({ theme, collapseAll = false, expanded: controlledExpan
           />
         )}
 
-        {/* Dalil lain — tampil saat expanded */}
-        {expanded && itemsToShow.map((d, i) => (
+        {/* Dalil lain — tampil saat expanded atau controlledExpanded */}
+        {(expanded || controlledExpanded) && itemsToShow.map((d, i) => (
           <DalilItem
             key={i}
             arabic={d.arabic}
