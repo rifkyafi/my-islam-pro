@@ -8,6 +8,18 @@ export interface HadithBook {
   available: number;
 }
 
+const FALLBACK_BOOKS: HadithBook[] = [
+  { id: "abu-daud", name: "Abu Dawud", available: 4419 },
+  { id: "ahmad", name: "Ahmad", available: 4305 },
+  { id: "bukhari", name: "Bukhari", available: 6638 },
+  { id: "darimi", name: "Darimi", available: 2949 },
+  { id: "ibnu-majah", name: "Ibnu Majah", available: 4285 },
+  { id: "malik", name: "Malik", available: 1587 },
+  { id: "muslim", name: "Muslim", available: 4930 },
+  { id: "nasai", name: "Nasa'i", available: 5364 },
+  { id: "tirmidzi", name: "Tirmidzi", available: 3625 },
+];
+
 export default async function HadisPage() {
   const haditsApiUrl = process.env.NEXT_PUBLIC_HADITS_API_URL || 'https://api.hadith.gading.dev';
   let books: HadithBook[] = [];
@@ -22,6 +34,10 @@ export default async function HadisPage() {
     }
   } catch (e) {
     console.error("Error fetching hadith books:", e);
+  }
+
+  if (books.length === 0) {
+    books = FALLBACK_BOOKS;
   }
 
   return (

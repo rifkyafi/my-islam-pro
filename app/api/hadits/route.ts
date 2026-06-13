@@ -1,74 +1,115 @@
 import { NextResponse } from "next/server";
-import https from "https";
 
-function fetchWithHttps(url: string): Promise<{ status: number | undefined; data: unknown }> {
-    return new Promise((resolve, reject) => {
-        https.get(url, (res) => {
-            let data = '';
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
-            res.on('end', () => {
-                try {
-                    resolve({ status: res.statusCode, data: JSON.parse(data) });
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        }).on('error', (e) => {
-            reject(e);
-        });
-    });
+const GITHUB_RAW = "https://raw.githubusercontent.com/gadingnst/hadith-api/master/books";
+
+const BOOKS = [
+  { id: "abu-daud", name: "Abu Dawud", available: 4419 },
+  { id: "ahmad", name: "Ahmad", available: 4305 },
+  { id: "bukhari", name: "Bukhari", available: 6638 },
+  { id: "darimi", name: "Darimi", available: 2949 },
+  { id: "ibnu-majah", name: "Ibnu Majah", available: 4285 },
+  { id: "malik", name: "Malik", available: 1587 },
+  { id: "muslim", name: "Muslim", available: 4930 },
+  { id: "nasai", name: "Nasa'i", available: 5364 },
+  { id: "tirmidzi", name: "Tirmidzi", available: 3625 },
+];
+
+interface HadithItem {
+  number: number;
+  arab: string;
+  id: string;
+}
+
+const bookCache = new Map<string, HadithItem[]>();
+const pendingFetch = new Map<string, Promise<HadithItem[]>>();
+
+async function fetchBook(bookId: string): Promise<HadithItem[]> {
+  const cached = bookCache.get(bookId);
+  if (cached) return cached;
+
+  const inFlight = pendingFetch.get(bookId);
+  if (inFlight) return inFlight;
+
+  const promise = (async () => {
+    const url = `${GITHUB_RAW}/${bookId}.json`;
+    const res = await fetch(url, { next: { revalidate: 3600 } });
+    if (!res.ok) throw new Error(`Failed to fetch ${bookId}: ${res.status}`);
+    const data: HadithItem[] = await res.json();
+    bookCache.set(bookId, data);
+    pendingFetch.delete(bookId);
+    return data;
+  })();
+
+  pendingFetch.set(bookId, promise);
+  return promise;
 }
 
 export async function GET(request: Request) {
-    const baseUrl = process.env.NEXT_PUBLIC_HADITS_API_URL;
-    if(!baseUrl){
-        return NextResponse.json(
-            {
-                message: " Hadist api url is not defined"
-            }
-        )
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json({ data: BOOKS });
+  }
+
+  const book = BOOKS.find((b) => b.id === id);
+  if (!book) {
+    return NextResponse.json({ message: `Book "${id}" not found` }, { status: 404 });
+  }
+
+  const range = searchParams.get("range");
+  const hadithLookup = searchParams.get("hadith");
+
+  try {
+    const allHadiths = await fetchBook(id);
+
+    const totalAvailable = allHadiths.length;
+
+    if (hadithLookup) {
+      const hadithNumber = parseInt(hadithLookup, 10);
+      const idx = allHadiths.findIndex((h) => h.number === hadithNumber);
+      if (idx === -1) {
+        return NextResponse.json({ page: null, error: "not found" });
+      }
+      const page = Math.floor(idx / 50) + 1;
+      return NextResponse.json({ page, index: idx });
     }
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-    const range = searchParams.get("range");
-
-    let fetchUrl = `${baseUrl}/books`;
-    if (id) {
-        fetchUrl = `${baseUrl}/books/${id}`;
-        if (range) {
-            let formattedRange = range;
-            if (/^\d+$/.test(range)) {
-                formattedRange = `${range}-${range}`;
-            }
-            fetchUrl += `?range=${formattedRange}`;
-        }
+    if (!range) {
+      return NextResponse.json({
+        data: {
+          name: book.name,
+          available: totalAvailable,
+          hadiths: allHadiths,
+        },
+      });
     }
 
-    try {
-        const response = await fetchWithHttps(fetchUrl);
-        if (response.status !== 200) {
-            return NextResponse.json(
-                {
-                    message: "Failed to fetch hadith data"
-                },
-                {
-                    status: response.status || 500
-                }
-            )
-        }
-        return NextResponse.json(response.data);
-    } catch (error) {
-        console.error("Error fetching hadith data:", error);
-        return NextResponse.json(
-            {
-                message: "Internal server error"
-            },
-            {
-                status: 500
-            }
-        )
+    let start: number;
+    let end: number;
+
+    if (/^\d+$/.test(range)) {
+      const idx = parseInt(range, 10) - 1;
+      start = idx;
+      end = idx + 1;
+    } else {
+      const parts = range.split("-");
+      start = parseInt(parts[0], 10) - 1;
+      end = parseInt(parts[1], 10);
     }
+
+    const hadiths = allHadiths.slice(start, end);
+
+    return NextResponse.json({
+      data: {
+        name: book.name,
+        available: totalAvailable,
+        hadiths,
+      },
+    });
+  } catch (error: unknown) {
+    console.error("Error fetching hadith data:", error);
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ message }, { status: 500 });
+  }
 }

@@ -1,12 +1,19 @@
 import { Groq } from "groq-sdk";
 import { NextResponse } from "next/server";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+function getGroqClient() {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "GROQ_API_KEY tidak ditemukan. Tambahkan di Vercel Dashboard → Settings → Environment Variables."
+    );
+  }
+  return new Groq({ apiKey });
+}
 
 export async function POST(req: Request) {
   try {
+    const groq = getGroqClient();
     const { messages, systemPrompt } = await req.json();
 
     const response = await groq.chat.completions.create({
