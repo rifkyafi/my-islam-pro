@@ -38,33 +38,25 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
   const mainRef = useRef<HTMLDivElement>(null);
   const fetchedRef = useRef<string>('');
   const requestedRef = useRef<string>('');
-  const hashResolvedRef = useRef(false);
-
-  // Resolve hash to correct page on mount
+  // Resolve hash to correct page whenever searchParams change
   useEffect(() => {
-    if (hashResolvedRef.current) return;
     const hash = window.location.hash;
     const hadithMatch = hash?.match(/^#hadith-(\d+)$/);
-    if (!hadithMatch) {
-      hashResolvedRef.current = true;
-      return;
-    }
+    if (!hadithMatch) return;
     const hadithNumber = hadithMatch[1];
     const currentPage = searchParams.get('page');
-    if (currentPage) {
-      hashResolvedRef.current = true;
-      return;
-    }
-    hashResolvedRef.current = true;
     fetch(`/api/hadits?id=${activeBookId}&hadith=${hadithNumber}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (data?.page && data.page !== 1) {
-          router.replace(`/hadis?book=${activeBookId}&page=${data.page}${hash}`, { scroll: false });
+        if (data?.page) {
+          const pageStr = String(data.page);
+          if (pageStr !== currentPage) {
+            router.replace(`/hadis?book=${activeBookId}&page=${pageStr}${hash}`, { scroll: false });
+          }
         }
       })
       .catch(() => {});
-  }, []);
+  }, [searchParams]);
 
   // Single fetch effect: runs when URL-derived book/page changes
   useEffect(() => {
