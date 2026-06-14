@@ -26,7 +26,7 @@ async function getFeaturedHadith(): Promise<FeaturedHadithData | null> {
 
     const hadithNumber = (daysSinceEpoch * 137) % maxHadith + 1;
 
-    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
     const response = await fetch(`${origin}/api/hadits?id=${selectedBookId}&range=${hadithNumber}-${hadithNumber}`, {
       next: { revalidate: 86400 }
     });
