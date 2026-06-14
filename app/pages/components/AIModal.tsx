@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useRouter } from "next/navigation";
-import { Send, Bot, User, Trash2, Sparkles, X, MessageCircle, AlertCircle, Copy, Check } from "lucide-react";
+import { Send, Bot, User, Trash2, Sparkles, X, MessageCircle, AlertCircle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { CopyButton } from "./CopyButton";
 
 const bookNameToId: Record<string, string> = {
   'bukhari': 'bukhari',
@@ -36,6 +37,16 @@ const bookNameToId: Record<string, string> = {
   'muwatha malik': 'malik',
   'darimi': 'darimi',
   'sunan darimi': 'darimi',
+  'nawawi': 'nawawi',
+  'imam nawawi': 'nawawi',
+  'arbain nawawi': 'nawawi',
+  '40 hadits nawawi': 'nawawi',
+  'qudsi': 'qudsi',
+  'hadits qudsi': 'qudsi',
+  'hadis qudsi': 'qudsi',
+  'dehlawi': 'dehlawi',
+  'syah waliullah': 'dehlawi',
+  '40 hadits dehlawi': 'dehlawi',
 };
 
 const bookNameKeys = Object.keys(bookNameToId)
@@ -110,36 +121,6 @@ function linkifyReferences(text: string): string {
 interface Message {
   role: "user" | "assistant";
   content: string;
-}
-
-function CopyMessageButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <button
-      onClick={handleCopy}
-      className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[var(--accent)]/5 hover:bg-[var(--accent)]/20 border border-[var(--accent-border-light)] text-[var(--text-muted)] hover:text-[var(--text-accent)] transition-all text-[0.7rem] uppercase tracking-wider"
-      title="Salin pesan"
-    >
-      {copied ? (
-        <>
-          <Check className="w-3.5 h-3.5" />
-          <span>Tersalin</span>
-        </>
-      ) : (
-        <>
-          <Copy className="w-3.5 h-3.5" />
-          <span>Salin</span>
-        </>
-      )}
-    </button>
-  );
 }
 
 const starterQuestions = [
@@ -435,7 +416,7 @@ export function AIModal() {
                         
                         {msg.role === "assistant" && (
                           <div className="mt-3 pt-3 border-t border-[#D48C46]/10 flex justify-start opacity-0 group-hover/msg:opacity-100 transition-opacity">
-                            <CopyMessageButton text={msg.content} />
+                            <CopyButton textToCopy={msg.content} />
                           </div>
                         )}
                       </div>

@@ -4,56 +4,50 @@ import { ThemesSection } from './components/ThemesSection'
 import { FeaturedHadith } from './components/FeaturedHadith'
 import { CtaBanner } from './components/CtaBanner'
 import { FeaturedHadithData, FeaturedQuranData } from './types'
+import { SIDEBAR_BOOK_ORDER } from '@/lib/hadith-config'
+
+const FEATURED_BOOK_AVAILABLE: Record<string, number> = {
+  'abu-daud': 4419, 'ahmad': 4305, 'bukhari': 6638, 'darimi': 2949,
+  'ibnu-majah': 4285, 'malik': 1587, 'muslim': 4930, 'nasai': 5364,
+  'tirmidzi': 3625, 'dehlawi': 40, 'nawawi': 42, 'qudsi': 40,
+};
 
 async function getFeaturedHadith(): Promise<FeaturedHadithData | null> {
   try {
-    // Menghitung hari saat ini sejak epoch agar konsisten berubah tiap 24 jam
     const today = new Date();
-    // Menggunakan offset waktu Asia/Jakarta (WIB) atau biarkan local/UTC
-    // Menggunakan Math.floor untuk pembulatan hari
     const daysSinceEpoch = Math.floor(today.getTime() / 86400000);
-    
-    // Daftar semua kitab hadits dan batas jumlah maksimalnya sesuai API
-    const books = [
-      { id: "abu-daud", max: 4419 },
-      { id: "ahmad", max: 4305 },
-      { id: "bukhari", max: 6638 },
-      { id: "darimi", max: 2949 },
-      { id: "ibnu-majah", max: 4285 },
-      { id: "malik", max: 1587 },
-      { id: "muslim", max: 4930 },
-      { id: "nasai", max: 5364 },
-      { id: "tirmidzi", max: 3625 }
-    ];
 
-    // Pilih kitab secara pseudorandom berdasarkan hari
+    const books = SIDEBAR_BOOK_ORDER.filter(id => FEATURED_BOOK_AVAILABLE[id]);
+    if (books.length === 0) return null;
+
     const bookIndex = (daysSinceEpoch * 73) % books.length;
-    const selectedBook = books[bookIndex];
+    const selectedBookId = books[bookIndex];
+    const maxHadith = FEATURED_BOOK_AVAILABLE[selectedBookId];
 
-    // Pilih nomor hadits secara pseudorandom dalam batas kitab yang terpilih
-    const hadithNumber = (daysSinceEpoch * 137) % selectedBook.max + 1;
+    const hadithNumber = (daysSinceEpoch * 137) % maxHadith + 1;
 
-    const apiUrl = process.env.NEXT_PUBLIC_HADITS_API_URL || 'https://api.hadith.gading.dev';
-    const response = await fetch(`${apiUrl}/books/${selectedBook.id}?range=${hadithNumber}-${hadithNumber}`, {
-      next: { revalidate: 86400 } // Cache selama 24 jam
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const response = await fetch(`${origin}/api/hadits?id=${selectedBookId}&range=${hadithNumber}-${hadithNumber}`, {
+      next: { revalidate: 86400 }
     });
-    
+
     if (!response.ok) return null;
-    
+
     const json = await response.json();
     const data = json.data;
-    
+
     if (!data || !data.hadiths || data.hadiths.length === 0) return null;
-    
-    const hadith = data.hadiths[0]; // Get the first one for example
-    
+
+    const hadith = data.hadiths[0];
+
     return {
       arabic: hadith.arab,
-      translation: hadith.id, // Usually the 'id' field in this specific API is the Indonesian translation
+      translation: hadith.id,
       source: data.name,
       number: hadith.number.toString(),
       theme: 'Umum',
-      narrator: 'Rasulullah ﷺ'
+      narrator: 'Rasulullah ﷺ',
+      grade: hadith.grade || undefined,
     };
   } catch (error) {
     console.error("Error fetching featured hadith:", error);

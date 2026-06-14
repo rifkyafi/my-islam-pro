@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Montserrat } from 'next/font/google';
 import { CopyButton } from '../pages/components/CopyButton';
-import type { HadithBook } from './page';
+import type { HadithBook } from '@/lib/hadith-config';
 
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['300', '400', '500'], style: ['normal', 'italic'] });
 const HADIS_PER_PAGE = 50;
@@ -13,6 +13,9 @@ interface HadithItem {
   number: number;
   arab: string;
   id: string;
+  grade?: string;
+  section?: string;
+  arabicNumber?: number;
 }
 
 interface BookData {
@@ -21,11 +24,17 @@ interface BookData {
   hadiths: HadithItem[];
 }
 
+const gradeColors: Record<string, string> = {
+  'Sahih': 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+  'Hasan': 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+  'Daif': 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+  'Maudu\'': 'bg-red-600/15 text-red-400 border-red-600/30',
+};
+
 export default function HadisClientView({ books }: { books: HadithBook[] }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Derive book/page from URL params synchronously on every render
   const urlBook = searchParams.get('book');
   const urlPage = searchParams.get('page');
   const validBook = books.find(b => b.id === urlBook);
@@ -38,27 +47,51 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
   const mainRef = useRef<HTMLDivElement>(null);
   const fetchedRef = useRef<string>('');
   const requestedRef = useRef<string>('');
-  // Resolve hash to correct page whenever searchParams change
+  const scrolledRef = useRef<string>('');
+
+  const scrollToTarget = useCallback(() => {
+    const hash = window.location.hash;
+    const targetId = hash?.startsWith('#hadith-') ? hash.replace('#', '') : null;
+    if (!targetId) { scrolledRef.current = ''; return; }
+    if (scrolledRef.current === targetId) return;
+
+    const element = document.getElementById(targetId);
+    if (!element) return;
+
+    const offset = 140;
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - offset;
+    window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+
+    element.classList.remove('animate-target-pulse');
+    void element.offsetWidth;
+    element.classList.add('animate-target-pulse');
+    setTimeout(() => element.classList.remove('animate-target-pulse'), 4000);
+
+    scrolledRef.current = targetId;
+  }, []);
+
   useEffect(() => {
     const hash = window.location.hash;
     const hadithMatch = hash?.match(/^#hadith-(\d+)$/);
     if (!hadithMatch) return;
     const hadithNumber = hadithMatch[1];
+    const bookId = searchParams.get('book');
     const currentPage = searchParams.get('page');
-    fetch(`/api/hadits?id=${activeBookId}&hadith=${hadithNumber}`)
+    if (!bookId) return;
+    fetch(`/api/hadits?id=${bookId}&hadith=${hadithNumber}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.page) {
           const pageStr = String(data.page);
           if (pageStr !== currentPage) {
-            router.replace(`/hadis?book=${activeBookId}&page=${pageStr}${hash}`, { scroll: false });
+            router.replace(`/hadis?book=${bookId}&page=${pageStr}${hash}`, { scroll: false });
           }
         }
       })
       .catch(() => {});
   }, [searchParams]);
 
-  // Single fetch effect: runs when URL-derived book/page changes
   useEffect(() => {
     const key = `${activeBookId}:${activePage}`;
     if (fetchedRef.current === key) return;
@@ -88,53 +121,27 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
       });
   }, [activeBookId, activePage]);
 
-  // Scroll to target hadith setelah data buku yang benar siap
   useEffect(() => {
-    const targetBook = searchParams.get('book');
-    if (targetBook && targetBook !== activeBookId) return;
     if (!bookData || loading) return;
+    scrollToTarget();
+    const timers = [100, 300, 600, 1000, 2000].map(d => setTimeout(scrollToTarget, d));
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [activeBookId, activePage, bookData, loading, scrollToTarget]);
 
-    let cancelled = false;
-    const timers: ReturnType<typeof setTimeout>[] = [];
-
-    const scrollToAnchor = () => {
-      const hash = window.location.hash;
-      const targetId = hash?.startsWith('#hadith-')
-        ? hash.replace('#', '')
-        : searchParams.get('hadith')
-          ? `hadith-${searchParams.get('hadith')}`
-          : null;
-      if (!targetId) return false;
-
-      const element = document.getElementById(targetId);
-      if (!element) return false;
-
-      const offset = 140;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-
-      element.classList.remove('animate-target-pulse');
-      void element.offsetWidth;
-      element.classList.add('animate-target-pulse');
-      timers.push(setTimeout(() => element.classList.remove('animate-target-pulse'), 4000));
-
-      return true;
-    };
-
-    scrollToAnchor();
-    const t1 = setTimeout(scrollToAnchor, 50);
-    const t2 = setTimeout(scrollToAnchor, 200);
-    const t3 = setTimeout(scrollToAnchor, 500);
-    const t4 = setTimeout(scrollToAnchor, 1200);
-
-    window.addEventListener('hashchange', scrollToAnchor);
+  useEffect(() => {
+    const attemptScroll = () => { scrollToTarget(); };
+    window.addEventListener('popstate', attemptScroll);
+    window.addEventListener('hashchange', attemptScroll);
     return () => {
-      cancelled = true;
-      [t1, t2, t3, t4].forEach(t => clearTimeout(t));
-      window.removeEventListener('hashchange', scrollToAnchor);
+      window.removeEventListener('popstate', attemptScroll);
+      window.removeEventListener('hashchange', attemptScroll);
     };
-  }, [activeBookId, activePage, bookData, loading, searchParams]);
+  }, [scrollToTarget]);
+
+  useEffect(() => {
+    const interval = setInterval(scrollToTarget, 200);
+    return () => clearInterval(interval);
+  }, [scrollToTarget]);
 
   const activeBookMeta = books.find(b => b.id === activeBookId);
 
@@ -153,6 +160,8 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
   const handlePageChange = (newPage: number) => {
     router.push(`/hadis?book=${activeBookId}&page=${newPage}`, { scroll: false });
   };
+
+  const currentSection = bookData?.hadiths?.[0]?.section;
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 relative">
@@ -260,6 +269,11 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
               <h2 className="font-cormorant text-3xl md:text-4xl font-normal leading-[1.1] text-[var(--text-primary)] mb-2">
                 {bookData.name}
               </h2>
+              {currentSection && (
+                <p className="text-[var(--text-accent)] text-sm font-medium mb-1 tracking-wide">
+                  {currentSection}
+                </p>
+              )}
               <p className="text-[var(--text-muted)] text-sm md:text-base font-light flex items-center gap-3">
                 <span className="text-[var(--text-accent-light)]">{bookData.available} Hadits Tersedia</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]/50"></span>
@@ -276,9 +290,16 @@ export default function HadisClientView({ books }: { books: HadithBook[] }) {
                 >
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <div className="flex flex-col gap-1">
-                      <h4 className="font-cormorant text-lg md:text-xl text-[var(--text-primary)] leading-tight">
-                        Hadits Riwayat {bookData.name}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-cormorant text-lg md:text-xl text-[var(--text-primary)] leading-tight">
+                          Hadits Riwayat {bookData.name}
+                        </h4>
+                        {hadith.grade && (
+                          <span className={`text-[0.6rem] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border ${gradeColors[hadith.grade] || 'bg-[var(--accent)]/10 text-[var(--text-accent)] border-[var(--accent-border)]'}`}>
+                            {hadith.grade}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-[var(--text-accent)] font-medium text-[0.7rem] tracking-wider uppercase">
                         {bookData.name} No. {hadith.number}
                       </span>

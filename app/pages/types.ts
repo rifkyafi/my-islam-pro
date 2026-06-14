@@ -34,4 +34,5 @@ export interface FeaturedHadithData {
   number: string
   theme: string
   narrator: string
+  grade?: string
 }

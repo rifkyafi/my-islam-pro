@@ -1,45 +1,21 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 import HadisClientView from './HadisClientView'
+import { SIDEBAR_BOOK_ORDER, BOOK_DISPLAY_NAMES, type HadithBook } from '@/lib/hadith-config'
 
-export interface HadithBook {
-  id: string;
-  name: string;
-  available: number;
-}
+const BOOK_AVAILABLE: Record<string, number> = {
+  'abu-daud': 4419, 'ahmad': 4305, 'bukhari': 6638, 'darimi': 2949,
+  'ibnu-majah': 4285, 'malik': 1587, 'muslim': 4930, 'nasai': 5364,
+  'tirmidzi': 3625, 'dehlawi': 40, 'nawawi': 42, 'qudsi': 40,
+};
 
-const FALLBACK_BOOKS: HadithBook[] = [
-  { id: "abu-daud", name: "Abu Dawud", available: 4419 },
-  { id: "ahmad", name: "Ahmad", available: 4305 },
-  { id: "bukhari", name: "Bukhari", available: 6638 },
-  { id: "darimi", name: "Darimi", available: 2949 },
-  { id: "ibnu-majah", name: "Ibnu Majah", available: 4285 },
-  { id: "malik", name: "Malik", available: 1587 },
-  { id: "muslim", name: "Muslim", available: 4930 },
-  { id: "nasai", name: "Nasa'i", available: 5364 },
-  { id: "tirmidzi", name: "Tirmidzi", available: 3625 },
-];
+const FALLBACK_BOOKS: HadithBook[] = SIDEBAR_BOOK_ORDER.map(id => ({
+  id,
+  name: BOOK_DISPLAY_NAMES[id],
+  available: BOOK_AVAILABLE[id],
+}));
 
 export default async function HadisPage() {
-  const haditsApiUrl = process.env.NEXT_PUBLIC_HADITS_API_URL || 'https://api.hadith.gading.dev';
-  let books: HadithBook[] = [];
-  
-  try {
-    const response = await fetch(`${haditsApiUrl}/books`, {
-      next: { revalidate: 3600 }
-    });
-    if (response.ok) {
-      const json = await response.json();
-      books = json.data || [];
-    }
-  } catch (e) {
-    console.error("Error fetching hadith books:", e);
-  }
-
-  if (books.length === 0) {
-    books = FALLBACK_BOOKS;
-  }
-
   return (
     <div className="bg-[var(--bg-primary)] text-[var(--text-primary)] py-24 pt-32">
       <div className="max-w-[1280px] mx-auto px-5 md:px-10">
@@ -69,7 +45,7 @@ export default async function HadisPage() {
             </div>
           </div>
         }>
-          <HadisClientView books={books} />
+          <HadisClientView books={FALLBACK_BOOKS} />
         </Suspense>
       </div>
     </div>

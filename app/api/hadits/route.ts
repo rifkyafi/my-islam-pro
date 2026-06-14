@@ -1,59 +1,244 @@
 import { NextResponse } from "next/server";
+import {
+  BOOK_ID_TO_FAWAZ,
+  FAWAZ_CDN, GADING_RAW, HADIS_PER_PAGE,
+  normalizeGrade, getCurrentSection, SIDEBAR_BOOK_ORDER, BOOK_DISPLAY_NAMES,
+  type UnifiedHadith, type HadithBook
+} from "@/lib/hadith-config";
 
-const GITHUB_RAW = "https://raw.githubusercontent.com/gadingnst/hadith-api/master/books";
+const BOOKS: HadithBook[] = SIDEBAR_BOOK_ORDER.map(id => ({
+  id,
+  name: BOOK_DISPLAY_NAMES[id],
+  available: 0,
+}));
 
-const BOOKS = [
-  { id: "abu-daud", name: "Abu Dawud", available: 4419 },
-  { id: "ahmad", name: "Ahmad", available: 4305 },
-  { id: "bukhari", name: "Bukhari", available: 6638 },
-  { id: "darimi", name: "Darimi", available: 2949 },
-  { id: "ibnu-majah", name: "Ibnu Majah", available: 4285 },
-  { id: "malik", name: "Malik", available: 1587 },
-  { id: "muslim", name: "Muslim", available: 4930 },
-  { id: "nasai", name: "Nasa'i", available: 5364 },
-  { id: "tirmidzi", name: "Tirmidzi", available: 3625 },
-];
-
-interface HadithItem {
-  number: number;
-  arab: string;
-  id: string;
+interface CacheEntry {
+  hadiths: UnifiedHadith[];
+  name: string;
+  available: number;
 }
 
-const bookCache = new Map<string, HadithItem[]>();
-const pendingFetch = new Map<string, Promise<HadithItem[]>>();
+interface SectionMeta {
+  sections: Record<string, string>;
+  sectionDetails: Record<string, { hadithnumber_first: number; hadithnumber_last: number }>;
+}
 
-async function fetchBook(bookId: string): Promise<HadithItem[]> {
-  const cached = bookCache.get(bookId);
+const mergedCache = new Map<string, CacheEntry>();
+const fawazCache = new Map<string, CacheEntry>();
+const gadingCache = new Map<string, CacheEntry>();
+const metaCache = new Map<string, SectionMeta>();
+const pendingFetch = new Map<string, Promise<unknown>>();
+
+const BOOK_AVAILABLE: Record<string, number> = {
+  'abu-daud': 4419, 'ahmad': 4305, 'bukhari': 6638, 'darimi': 2949,
+  'ibnu-majah': 4285, 'malik': 1587, 'muslim': 4930, 'nasai': 5364,
+  'tirmidzi': 3625, 'dehlawi': 40, 'nawawi': 42, 'qudsi': 40,
+};
+
+const BOOK_NAME: Record<string, string> = {
+  'abu-daud': 'Abu Dawud', 'ahmad': 'Ahmad', 'bukhari': 'Bukhari',
+  'darimi': 'Darimi', 'ibnu-majah': 'Ibnu Majah', 'malik': 'Malik',
+  'muslim': 'Muslim', 'nasai': "Nasa'i", 'tirmidzi': 'Tirmidzi',
+  'dehlawi': 'Dehlawi', 'nawawi': 'Nawawi', 'qudsi': 'Qudsi',
+};
+
+// Route: which source for which book
+const GADING_MERGED_BOOKS = new Set(['bukhari', 'muslim', 'abu-daud', 'tirmidzi', 'nasai', 'ibnu-majah', 'malik']);
+const GADING_ONLY_BOOKS = new Set(['ahmad', 'darimi']);
+const FAWAZ_ONLY_BOOKS = new Set(['dehlawi', 'nawawi', 'qudsi']);
+
+// ─── Fawaz Metadata (sections only) ─────────────────────────────────
+
+async function fetchFawazMetadata(fawazKey: string): Promise<SectionMeta> {
+  const cached = metaCache.get(fawazKey);
   if (cached) return cached;
 
-  const inFlight = pendingFetch.get(bookId);
-  if (inFlight) return inFlight;
+  const inFlight = pendingFetch.get(`meta:${fawazKey}`);
+  if (inFlight) {
+    const result = await inFlight;
+    return result as SectionMeta;
+  }
 
   const promise = (async () => {
-    const url = `${GITHUB_RAW}/${bookId}.json`;
-    const res = await fetch(url, { next: { revalidate: 3600 } });
-    if (!res.ok) throw new Error(`Failed to fetch ${bookId}: ${res.status}`);
-    const data: HadithItem[] = await res.json();
-    bookCache.set(bookId, data);
-    pendingFetch.delete(bookId);
-    return data;
+    const edition = `ind-${fawazKey}`;
+    const res = await fetch(`${FAWAZ_CDN}/editions/${edition}.min.json`, {
+      next: { revalidate: 3600 }
+    });
+    if (!res.ok) return { sections: {}, sectionDetails: {} };
+    const data = await res.json();
+    const result: SectionMeta = {
+      sections: data.metadata?.sections || {},
+      sectionDetails: data.metadata?.section_details || data.metadata?.section_detail || {},
+    };
+    metaCache.set(fawazKey, result);
+    pendingFetch.delete(`meta:${fawazKey}`);
+    return result;
   })();
 
-  pendingFetch.set(bookId, promise);
-  return promise;
+  pendingFetch.set(`meta:${fawazKey}`, promise);
+  const result = await promise;
+  return result;
 }
+
+// ─── Gading.dev (primary source for 7+2 books) ─────────────────────
+
+const INDONESIAN_EDITION_KEYS = new Set(['bukhari', 'muslim', 'abudawud', 'tirmidhi', 'nasai', 'ibnmajah', 'malik']);
+
+async function fetchGadingBook(bookId: string): Promise<CacheEntry> {
+  const cached = gadingCache.get(bookId);
+  if (cached) return cached;
+
+  const inFlight = pendingFetch.get(`gading:${bookId}`);
+  if (inFlight) {
+    const result = await inFlight;
+    return result as CacheEntry;
+  }
+
+  const promise = (async () => {
+    const url = `${GADING_RAW}/${bookId}.json`;
+    const res = await fetch(url, { next: { revalidate: 3600 } });
+    if (!res.ok) throw new Error(`Failed to fetch ${bookId}: ${res.status}`);
+    const data: Array<{ number: number; arab: string; id: string }> = await res.json();
+    const hadiths: UnifiedHadith[] = data.map(h => ({
+      number: h.number,
+      arab: h.arab,
+      id: h.id,
+    }));
+    const entry: CacheEntry = {
+      hadiths,
+      name: BOOK_NAME[bookId] || bookId,
+      available: hadiths.length,
+    };
+    gadingCache.set(bookId, entry);
+    pendingFetch.delete(`gading:${bookId}`);
+    return entry;
+  })();
+
+  pendingFetch.set(`gading:${bookId}`, promise);
+  const result = await promise;
+  return result;
+}
+
+// ─── Gading + Fawaz Sections (merged for 7 books) ──────────────────
+
+async function fetchGadingBookWithSections(bookId: string): Promise<CacheEntry> {
+  const cached = mergedCache.get(bookId);
+  if (cached) return cached;
+
+  const inFlight = pendingFetch.get(`merged:${bookId}`);
+  if (inFlight) {
+    const result = await inFlight;
+    return result as CacheEntry;
+  }
+
+  const promise = (async () => {
+    const [gadingEntry, fawazMeta] = await Promise.all([
+      fetchGadingBook(bookId),
+      fetchFawazMetadata(BOOK_ID_TO_FAWAZ[bookId]),
+    ]);
+
+    const hadiths: UnifiedHadith[] = gadingEntry.hadiths.map(h => ({
+      ...h,
+      section: getCurrentSection(h.number, fawazMeta.sectionDetails, fawazMeta.sections),
+    }));
+
+    const entry: CacheEntry = {
+      hadiths,
+      name: gadingEntry.name,
+      available: gadingEntry.available,
+    };
+    mergedCache.set(bookId, entry);
+    pendingFetch.delete(`merged:${bookId}`);
+    return entry;
+  })();
+
+  pendingFetch.set(`merged:${bookId}`, promise);
+  const result = await promise;
+  return result;
+}
+
+// ─── Fawazahmed0 (for bonus books: dehlawi, nawawi, qudsi) ─────────
+
+async function fetchFawazBook(bookId: string): Promise<CacheEntry> {
+  const cached = fawazCache.get(bookId);
+  if (cached) return cached;
+
+  const fawazKey = BOOK_ID_TO_FAWAZ[bookId];
+  const hasIndonesian = INDONESIAN_EDITION_KEYS.has(fawazKey);
+  const primaryEdition = hasIndonesian ? `ind-${fawazKey}` : `eng-${fawazKey}`;
+  const araEdition = `ara-${fawazKey}`;
+
+  const inFlight = pendingFetch.get(`fawaz:${bookId}`);
+  if (inFlight) {
+    const result = await inFlight;
+    return result as CacheEntry;
+  }
+
+  const promise = (async () => {
+    const [primaryRes, araRes] = await Promise.allSettled([
+      fetch(`${FAWAZ_CDN}/editions/${primaryEdition}.min.json`, { next: { revalidate: 3600 } }),
+      fetch(`${FAWAZ_CDN}/editions/${araEdition}.min.json`, { next: { revalidate: 3600 } }),
+    ]);
+
+    const primaryData = primaryRes.status === 'fulfilled'
+      ? await primaryRes.value.json()
+      : null;
+    const araData = araRes.status === 'fulfilled'
+      ? await araRes.value.json()
+      : null;
+
+    if (!primaryData?.hadiths) {
+      throw new Error(`Failed to fetch ${bookId} (${primaryEdition})`);
+    }
+
+    const araMap = new Map<number, string>();
+    if (araData?.hadiths) {
+      for (const h of araData.hadiths) {
+        araMap.set(h.hadithnumber, h.text);
+      }
+    }
+
+    const sections = primaryData.metadata?.sections || {};
+    const sectionDetails = primaryData.metadata?.section_details || primaryData.metadata?.section_detail || {};
+
+    const name = BOOK_NAME[bookId] || primaryData.metadata?.name || fawazKey;
+    const available = BOOK_AVAILABLE[bookId] || primaryData.metadata?.last_hadithnumber || primaryData.hadiths.length;
+
+    const hadiths: UnifiedHadith[] = primaryData.hadiths.map((h: { hadithnumber: number; arabicnumber?: number; text: string; grades?: string[] }) => ({
+      number: h.hadithnumber,
+      arab: araMap.get(h.hadithnumber) || '',
+      id: h.text,
+      grade: normalizeGrade(h.grades || []),
+      arabicNumber: h.arabicnumber || h.hadithnumber,
+      section: getCurrentSection(h.hadithnumber, sectionDetails, sections),
+    }));
+
+    const entry: CacheEntry = { hadiths, name, available };
+    fawazCache.set(bookId, entry);
+    pendingFetch.delete(`fawaz:${bookId}`);
+    return entry;
+  })();
+
+  pendingFetch.set(`fawaz:${bookId}`, promise);
+  const result = await promise;
+  return result;
+}
+
+// ─── Router ────────────────────────────────────────────────────────
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
 
   if (!id) {
-    return NextResponse.json({ data: BOOKS });
+    const data = BOOKS.map(b => ({
+      ...b,
+      available: BOOK_AVAILABLE[b.id] || 0,
+    }));
+    return NextResponse.json({ data });
   }
 
-  const book = BOOKS.find((b) => b.id === id);
-  if (!book) {
+  if (!GADING_MERGED_BOOKS.has(id) && !GADING_ONLY_BOOKS.has(id) && !FAWAZ_ONLY_BOOKS.has(id)) {
     return NextResponse.json({ message: `Book "${id}" not found` }, { status: 404 });
   }
 
@@ -61,9 +246,17 @@ export async function GET(request: Request) {
   const hadithLookup = searchParams.get("hadith");
 
   try {
-    const allHadiths = await fetchBook(id);
+    let entry: CacheEntry;
 
-    const totalAvailable = allHadiths.length;
+    if (GADING_MERGED_BOOKS.has(id)) {
+      entry = await fetchGadingBookWithSections(id);
+    } else if (GADING_ONLY_BOOKS.has(id)) {
+      entry = await fetchGadingBook(id);
+    } else {
+      entry = await fetchFawazBook(id);
+    }
+
+    const { hadiths: allHadiths, name, available } = entry;
 
     if (hadithLookup) {
       const hadithNumber = parseInt(hadithLookup, 10);
@@ -71,17 +264,13 @@ export async function GET(request: Request) {
       if (idx === -1) {
         return NextResponse.json({ page: null, error: "not found" });
       }
-      const page = Math.floor(idx / 50) + 1;
+      const page = Math.floor(idx / HADIS_PER_PAGE) + 1;
       return NextResponse.json({ page, index: idx });
     }
 
     if (!range) {
       return NextResponse.json({
-        data: {
-          name: book.name,
-          available: totalAvailable,
-          hadiths: allHadiths,
-        },
+        data: { name, available, hadiths: allHadiths },
       });
     }
 
@@ -101,11 +290,7 @@ export async function GET(request: Request) {
     const hadiths = allHadiths.slice(start, end);
 
     return NextResponse.json({
-      data: {
-        name: book.name,
-        available: totalAvailable,
-        hadiths,
-      },
+      data: { name, available, hadiths },
     });
   } catch (error: unknown) {
     console.error("Error fetching hadith data:", error);
